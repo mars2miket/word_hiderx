@@ -10,12 +10,15 @@
  * @param {string} letter - The column to sort by ('A' or 'B')
  */
 function sortSpreadsheetByColumn(letter) {
+    const container = window.spreadsheetContainer || document.querySelector('.spreadsheet-container') || document.getElementById('spreadsheetContainer');
+    if (!container) return;
+
     const rowsData = [];
     
     // Step A: Extract paired cell data rows as interconnected structural units
-    spreadsheetContainer.querySelectorAll('.data-cell[data-col="A"]').forEach(cellA => {
+    container.querySelectorAll('.data-cell[data-col="A"]').forEach(cellA => {
         const rowNum = cellA.dataset.row;
-        const cellB = spreadsheetContainer.querySelector(`.data-cell[data-row="${rowNum}"][data-col="B"]`);
+        const cellB = container.querySelector(`.data-cell[data-row="${rowNum}"][data-col="B"]`);
         
         const valA = (cellA.textContent || "").trim();
         const valB = cellB ? (cellB.textContent || "").trim() : "";
@@ -31,6 +34,10 @@ function sortSpreadsheetByColumn(letter) {
     // Prevent execution if no row text matrix data exists to sort
     if (rowsData.length === 0) return;
 
+    // Initialize safe toggle state variables directly on the DOM element dataset properties
+    if (!container.dataset.sortDirA) container.dataset.sortDirA = 'asc';
+    if (!container.dataset.sortDirB) container.dataset.sortDirB = 'asc';
+
     // Step B: Reorder the units alphabetically while keeping empty strings at the bottom
     rowsData.sort((rowX, rowY) => {
         const textX = (letter === 'A' ? rowX.valA : rowX.valB).toLowerCase();
@@ -45,8 +52,17 @@ function sortSpreadsheetByColumn(letter) {
         return textX.localeCompare(textY);
     });
 
+    // Handle direction inversion and update tracking states
+    const stateKey = letter === 'A' ? 'sortDirA' : 'sortDirB';
+    if (container.dataset[stateKey] === 'asc') {
+        rowsData.reverse();
+        container.dataset[stateKey] = 'desc';
+    } else {
+        container.dataset[stateKey] = 'asc';
+    }
+
     // Step C: Flush existing rows completely from the layout grid container matrix
-    spreadsheetContainer.querySelectorAll('.data-cell').forEach(c => c.remove());
+    container.querySelectorAll('.data-cell').forEach(c => c.remove());
     
     // Step D: Re-render rows systematically into the DOM from sorted trace cache arrays
     rowsData.forEach((rowData, index) => {
@@ -63,7 +79,7 @@ function sortSpreadsheetByColumn(letter) {
             localStorage.setItem('savedSpreadsheetGridData', textBox.value); 
         }
     } catch (err) { 
-        console.warn('localStorage save failed inside sorting engine:', err); 
+        console.warn('localStorage save failed inside sorting engine:', err);
     }
 }
 
@@ -72,7 +88,10 @@ function sortSpreadsheetByColumn(letter) {
  * Safely handles click propagation to separate sorting from hiding actions.
  */
 function initializeSortingControls() {
-    spreadsheetContainer.querySelectorAll('.header-cell').forEach(headerEl => {
+    const container = window.spreadsheetContainer || document.querySelector('.spreadsheet-container') || document.getElementById('spreadsheetContainer');
+    if (!container) return;
+
+    container.querySelectorAll('.header-cell').forEach(headerEl => {
         const columnLetter = headerEl.dataset.col;
         const sortBtn = headerEl.querySelector('.header-sort-btn');
         
@@ -85,7 +104,9 @@ function initializeSortingControls() {
     });
 }
 
-// Automatically mount button click event hooks once script is evaluated
-document.addEventListener('DOMContentLoaded', () => {
+// Automatically mount button click event hooks once script is evaluated safely
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeSortingControls);
+} else {
     initializeSortingControls();
-});
+}
