@@ -5,8 +5,10 @@
     if (!wrapper || !tab) return;
 
     const mq = window.matchMedia('(max-width: 700px)');
+    let lastMatches = mq.matches;
 
-    function applyDefault() {
+    // Set the initial state ONCE on load
+    function setInitialState() {
         if (mq.matches) {
             wrapper.classList.remove('open');
             wrapper.classList.add('collapsed');
@@ -16,13 +18,19 @@
         }
     }
 
+    // Only react when crossing the 700px boundary in either direction
+    mq.addEventListener('change', (e) => {
+        if (e.matches === lastMatches) return;   // ignore spurious flips
+        lastMatches = e.matches;
+        setInitialState();
+    });
+
     tab.addEventListener('click', () => {
         wrapper.classList.toggle('open');
         wrapper.classList.toggle('collapsed');
     });
 
-    applyDefault();
-    mq.addEventListener('change', applyDefault);
+    setInitialState();
 })();
 
 // --- ACCORDION (single-open) ---

@@ -364,7 +364,7 @@
 
 .header-cell .header-label {
     cursor: pointer;
-    font-size: 20px;
+    font-size: 16px;
     display: block;
     flex: 1;
     text-align: left;
@@ -870,6 +870,15 @@
 
     .sidebar-wrapper.open .edge-tab { left: calc(100% - 20px); }
     .sidebar-wrapper.collapsed .edge-tab { left: 0; }
+    .controls-sidebar {
+    overflow-y: auto !important;
+}
+
+.sidebar-scrollable-content {
+    height: auto;
+    min-height: 100%;
+    overflow-y: visible;
+}
 
     .input-workspace {
         padding: 12px;
