@@ -56,24 +56,36 @@
     var state = window.getState();
     var names = Object.keys(state.lists || {});
     selectEl.innerHTML = '';
+
+    var placeholder = document.createElement('option');
+    placeholder.value = '';
+    placeholder.textContent = 'Select a List';
+    placeholder.disabled = false;
+    selectEl.appendChild(placeholder);
+
     names.forEach(function (name) {
       var op = document.createElement('option');
       op.value = name;
       op.textContent = name;
       selectEl.appendChild(op);
     });
-    if (state.activeList) selectEl.value = state.activeList;
+
+        // Show placeholder when a note is active, otherwise show the active list
+    selectEl.value = state.noteActive ? '' : (state.activeList || '');
   }
 
   function onSelectChange() {
     var name = selectEl.value;
     var state = window.getState();
+
+    // Always exit note mode when a list is picked (even the same one)
     if (state.noteActive) {
       window.setState({ noteActive: false, activeNote: null });
+      window.storage.set('mode', 'grid');
+      window.storage.remove('activeNote');
     }
-    if (state.noteActive) {
-      window.setState({ noteActive: false, activeNote: null });
-    }
+
+    // If picking the same list, exit early (but note mode is already exited above)
     if (!(name in state.lists) || name === state.activeList) return;
 
     // Save current grid into the outgoing list

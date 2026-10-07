@@ -189,7 +189,7 @@
     // Prompt
     var prompt = document.createElement('div');
     prompt.className = 'prompt-line';
-    prompt.innerHTML = '<strong>Exam Prompt</strong>' + escapeHtml(currentItem.prompt);
+    prompt.innerHTML = '<strong>Exam Prompt: </strong>' + escapeHtml(currentItem.prompt);
     wrap.appendChild(prompt);
 
     // Answer area

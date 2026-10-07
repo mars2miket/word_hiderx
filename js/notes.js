@@ -1,13 +1,6 @@
 /**
  * notes.js — classic script.
- * -----------------------------------------------------------------------------
- * Manages the "Notes" accordion and the note textarea:
- *   • Populate the dropdown from state.notes
- *   • Enter / exit note mode (hides grid, shows textarea)
- *   • New / Rename / Delete note
- *   • Persist changes on input
- *   • Drag-to-resize the note area
- * -----------------------------------------------------------------------------
+ * Manages the Notes accordion and the note textarea.
  */
 (function () {
   'use strict';
@@ -38,6 +31,14 @@
     if (deleteBtn) deleteBtn.addEventListener('click', onDeleteNote);
     if (noteArea)  noteArea.addEventListener('input', onNoteInput);
     if (noteResizer) initResize();
+
+    // Restore note mode if we were in it last session
+    var savedMode = window.storage.get('mode', 'grid');
+    var savedName = window.storage.get('activeNote', null);
+    var st = window.getState();
+    if (savedMode === 'note' && savedName && savedName in st.notes) {
+      enterNote(savedName);
+    }
   }
 
   // ─── Dropdown ────────────────────────────────────────────────────────────
@@ -47,10 +48,11 @@
     var names = Object.keys(state.notes || {});
     selectEl.innerHTML = '';
 
-    var blank = document.createElement('option');
-    blank.value = '';
-    blank.textContent = '';
-    selectEl.appendChild(blank);
+    var placeholder = document.createElement('option');
+    placeholder.value = '';
+    placeholder.textContent = 'Select a Note';
+    placeholder.disabled = false;
+    selectEl.appendChild(placeholder);
 
     names.forEach(function (name) {
       var op = document.createElement('option');
@@ -78,6 +80,9 @@
       activeNote: name
     });
 
+    window.storage.set('mode', 'note');
+    window.storage.set('activeNote', name);
+
     if (noteArea) noteArea.value = state.notes[name] || '';
     if (workspace) workspace.classList.add('note-mode');
 
@@ -89,6 +94,10 @@
       noteActive: false,
       activeNote: null
     });
+
+    window.storage.set('mode', 'grid');
+    window.storage.remove('activeNote');
+
     if (workspace) workspace.classList.remove('note-mode');
     if (typeof window.updateCharCount === 'function') window.updateCharCount();
   }
@@ -136,6 +145,7 @@
     });
 
     window.setState({ notes: notes, activeNote: name });
+    window.storage.set('activeNote', name);
   }
 
   function onDeleteNote() {

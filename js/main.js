@@ -66,6 +66,10 @@
       ? activeList
       : Object.keys(safeLists)[0];
 
+    var savedMode     = storage.get('mode', 'grid');
+    var savedNoteName = storage.get('activeNote', null);
+    var noteWasActive = savedMode === 'note' && savedNoteName && savedNoteName in notes;
+
     setState({
       theme: theme,
       lang: lang,
@@ -73,6 +77,8 @@
       lists: safeLists,
       activeList: safeActiveList,
       notes: notes,
+      noteActive: !!noteWasActive,
+      activeNote: noteWasActive ? savedNoteName : null,
       speed: speed,
       genderFilter: genderFilter,
       selectedVoiceName: voiceName,
