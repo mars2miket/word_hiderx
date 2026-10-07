@@ -54,6 +54,11 @@ window.__LOCALES__.vi = {
   onboardingBody: "Nhập hoặc dán dữ liệu vào cả hai cột, sau đó nhấp vào nút Ẩn trên một trong hai cột để kiểm tra trí nhớ của bạn.",
   onboardingSampleBadge: "Mẫu",
   onboardingDismiss: "Đóng",
+  onboardingBullet1: "Nhấp vào Ẩn cột A hoặc Ẩn cột B để che một cột và tự kiểm tra",
+  onboardingBullet2: "Nhấp vào Bắt đầu kiểm tra để làm bài kiểm tra có chấm điểm với các chế độ trắc nghiệm, đúng/sai hoặc điền chỗ trống",
+  onboardingBullet3: "Sử dụng nút chuyển Danh sách / Ghi chú để tổ chức nhiều bộ thẻ hoặc ghi chú",
+  onboardingBullet4: "Nhấn ▶ để nghe danh sách của bạn được đọc to ở bất kỳ tốc độ nào",
+  onboardingBullet5: "Mọi thứ tự động lưu vào trình duyệt của bạn",
 
   // Stepper
   stepEnter: "Nhập dữ liệu",

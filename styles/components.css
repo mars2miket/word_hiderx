@@ -322,8 +322,8 @@
   background-color: var(--bg-surface);
   border-radius: 4px;
   flex: 1 1 auto;
-  min-height: 200px;
-  max-height: 50vh;
+  min-height: 120px;
+  max-height: none;
   overflow-y: auto;
   position: relative;
 }
@@ -418,6 +418,12 @@
   flex-direction: column;
   gap: 8px;
   flex-shrink: 0;
+  position: sticky;
+  bottom: 0;
+  background: var(--bg-app);
+  padding-top: 10px;
+  padding-bottom: 4px;
+  z-index: 5;
 }
 
 .grid-helper {
@@ -948,4 +954,45 @@
   background: rgba(220, 38, 38, 0.15);
   border-color: #dc2626;
   color: #f87171;
+}
+
+.hint-card .hint-list {
+  margin: 10px 0 0 0;
+  padding-left: 18px;
+  list-style: disc;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-secondary, #a8b2c8);
+}
+
+.hint-card .hint-list li {
+  margin-bottom: 4px;
+}
+
+.hint-card .hint-list strong {
+  color: var(--text-primary, #eef2f9);
+  font-weight: 600;
+}
+
+/* ==========================================================================
+   MASKED CELLS (Hide Col A / B)
+   ========================================================================== */
+.recall-word.col-hidden:not(.revealed) {
+  background-color: #0f172a;
+  color: #0f172a;
+  border-radius: 3px;
+  user-select: none;
+  cursor: default;
+}
+
+[data-theme="light"] .recall-word.col-hidden:not(.revealed) {
+  background-color: #1e293b;
+  color: #1e293b;
+}
+
+/* Reveal on focus (when cell is being edited) */
+.data-cell:focus .recall-word.col-hidden {
+  background-color: transparent;
+  color: inherit;
+  user-select: text;
 }

@@ -64,8 +64,9 @@
       externalRowChange = false;
     };
 
-    // Initial char count
+    // Initial char count + button state
     updateCharCount();
+    syncStartTestButton();
 
     // Expose to other modules
     window.updateCharCount = updateCharCount;

@@ -51,9 +51,14 @@ window.__LOCALES__.en = {
 
   // Onboarding
   onboardingTitle: "Welcome",
-  onboardingBody: "Type or paste data into both columns, then click Hide on either column to test your memory.",
+  onboardingBody: "Paste or type your data into the grid below — one pair per row, column A and column B.",
   onboardingSampleBadge: "Sample",
   onboardingDismiss: "Dismiss",
+  onboardingBullet1: "Click Hide Col A or Hide Col B to mask a column and self-test",
+  onboardingBullet2: "Click Start Test for a graded quiz with multiple-choice, T/F, or fill-in-blank modes",
+  onboardingBullet3: "Use the Lists / Notes toggle to organize multiple decks or keep notes",
+  onboardingBullet4: "Press ▶ to hear your list read aloud at any speed",
+  onboardingBullet5: "Everything saves automatically to your browser",
 
   // Stepper
   stepEnter: "Enter your data",
