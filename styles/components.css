@@ -83,13 +83,16 @@
    ========================================================================== */
 .ctrl-input,
 .ctrl-select {
-  width: 100%;
-  padding: 8px 10px;
-  border: 1px solid var(--control-border);
-  border-radius: 6px;
-  background: var(--control-bg);
+  color-scheme: dark;
+}
+
+[data-theme="light"] .ctrl-select {
+  color-scheme: light;
+}
+
+.ctrl-select option {
+  background-color: var(--bg-surface-2);
   color: var(--text-primary);
-  font-size: 13px;
 }
 
 .ctrl-btn {
@@ -856,4 +859,93 @@
 .next-row .answer-btn:disabled {
   opacity: 0.4;
   cursor: not-allowed;
+}
+
+.view-switch {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.seg-toggle {
+  display: flex;
+  background: var(--bg-surface);
+  border-radius: 10px;
+  padding: 4px;
+  gap: 4px;
+}
+
+.seg-btn {
+  flex: 1;
+  padding: 10px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 6px;
+  background: transparent;
+  border: none;
+  color: var(--text-muted, #94a3b8);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.seg-btn:hover { color: var(--text-primary, #e2e8f0); }
+
+.seg-btn.active {
+  background: linear-gradient(135deg, #7c5ce8, #2f5c9c);
+  color: #fff;
+}
+
+.dd-strip {
+  display: flex;
+  align-items: center;
+  background: var(--bg-surface, #1e293b);
+  border-radius: 10px;
+  padding: 8px 14px;
+}
+
+.dd-strip select {
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: var(--text-primary, #e2e8f0);
+  font-size: 15px;
+  font-weight: 600;
+  outline: none;
+  cursor: pointer;
+}
+
+#row-delete-btn {
+  position: absolute;
+  display: none;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  font-size: 16px;
+  line-height: 1;
+  border: 1px solid var(--border-strong, #475569);
+  border-radius: 8px;
+  background: var(--bg-surface, #1e293b);
+  color: var(--text-muted, #94a3b8);
+  cursor: pointer;
+  z-index: 20;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+#row-delete-btn.visible {
+  display: grid;
+  place-items: center;
+}
+
+#row-delete-btn:hover {
+  background: #fef2f2;
+  border-color: #fca5a5;
+  color: #dc2626;
+}
+
+[data-theme="dark"] #row-delete-btn:hover {
+  background: rgba(220, 38, 38, 0.15);
+  border-color: #dc2626;
+  color: #f87171;
 }

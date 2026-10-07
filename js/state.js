@@ -58,7 +58,10 @@
     // ─── Timer ───────────────────────────────────────────────────────────
     timerRunning: false,
     timerStartMs: 0,
-    timerElapsedMs: 0
+    timerElapsedMs: 0,
+
+    // 'lists' | 'notes'
+    viewMode: 'lists',
   };
 
   var state = Object.assign({}, initialState);

@@ -51,6 +51,7 @@
     var voiceName    = storage.get('voiceName', null);
     var examMode     = storage.get('examMode', 'choice');
     var examReverse  = storage.get('examReverse', false);
+    var viewMode = storage.get('viewMode', 'lists');
 
     // Ensure at least one empty row exists
     var safeRows = Array.isArray(rows) && rows.length > 0
@@ -83,7 +84,8 @@
       genderFilter: genderFilter,
       selectedVoiceName: voiceName,
       examMode: examMode,
-      examReverse: examReverse
+      examReverse: examReverse,
+      viewMode: viewMode
     });
 
     // Apply theme + lang to the DOM immediately (avoid flash)
@@ -108,7 +110,8 @@
     genderFilter:      'genderFilter',
     selectedVoiceName: 'voiceName',
     examMode:          'examMode',
-    examReverse:       'examReverse'
+    examReverse:       'examReverse',
+    viewMode: 'viewMode'
   };
 
   subscribe(function (state, prev) {
@@ -129,5 +132,6 @@
   if (typeof window.initSpeech === 'function')     window.initSpeech();
   if (typeof window.initExam === 'function')       window.initExam();
   if (typeof window.initOnboarding === 'function') window.initOnboarding();
+  if (typeof window.initWorkspaceToggle === 'function') window.initWorkspaceToggle();
 
   console.log('[RecallRx] Data layer ready.');

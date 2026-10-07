@@ -8,6 +8,7 @@
  *   • Click a column header to toggle hiding that column
  *   • Masked cells reveal on focus, re-mask on blur
  *   • Live char count + time estimate
+ *   • Hover a B cell → trash icon → delete that row
  *   • Persists to state on every change (state → storage auto-handled)
  * -----------------------------------------------------------------------------
  */
@@ -44,7 +45,9 @@
       });
     });
 
-    // Re-render when rows change in state (e.g. from list switch, undo, etc.)
+    // Delete-row wiring
+    initRowDelete();
+
     // Re-render only when rows change from an EXTERNAL source
     // (list switch, onboarding seed). Never while the user is typing.
     var externalRowChange = false;
@@ -373,6 +376,83 @@
       return (r.a && r.a.trim()) || (r.b && r.b.trim());
     });
     btn.disabled = !hasContent;
+  }
+
+  // ─── Delete row ──────────────────────────────────────────────────────────
+  function initRowDelete() {
+    // Create the floating delete button (hidden by default)
+    var delBtn = document.createElement('button');
+    delBtn.id = 'row-delete-btn';
+    delBtn.type = 'button';
+    delBtn.title = 'Delete row';
+    delBtn.textContent = '🗑';
+    delBtn.setAttribute('aria-label', 'Delete row');
+    container.appendChild(delBtn);
+
+    var targetRow = null;
+
+    function showFor(cell) {
+      var c = container.getBoundingClientRect();
+      var r = cell.getBoundingClientRect();
+      delBtn.style.top  = (r.top - c.top + container.scrollTop + (r.height - 36) / 2) + 'px';
+      delBtn.style.left = (r.right - c.left + container.scrollLeft - 44) + 'px';
+      delBtn.classList.add('visible');
+      targetRow = cell.dataset.row;
+    }
+
+    function hide() {
+      delBtn.classList.remove('visible');
+      targetRow = null;
+    }
+
+    // Desktop: show on hover over the B cell, near the right edge
+    container.addEventListener('mousemove', function (e) {
+      if (e.target === delBtn) return;
+      var cell = e.target.closest('.data-cell[data-col="B"]');
+      if (!cell) { hide(); return; }
+      var rect = cell.getBoundingClientRect();
+      if (e.clientX >= rect.right - 56) showFor(cell);
+      else hide();
+    });
+
+    container.addEventListener('mouseleave', hide);
+
+    // Mobile: show when the B cell is focused
+    container.addEventListener('focusin', function (e) {
+      if (e.target.matches('.data-cell[data-col="B"]') && window.matchMedia('(hover: none)').matches) {
+        showFor(e.target);
+      }
+    });
+
+    container.addEventListener('focusout', function (e) {
+      if (e.relatedTarget !== delBtn) hide();
+    });
+
+    // Click handler
+    delBtn.addEventListener('mousedown', function (e) { e.preventDefault(); });
+    delBtn.addEventListener('click', function () {
+      if (targetRow) deleteRowAt(targetRow);
+      hide();
+    });
+
+    // Hide on scroll (position would be stale)
+    container.addEventListener('scroll', hide);
+  }
+
+  function deleteRowAt(rowNum) {
+    var state = window.getState();
+    var rows = (state.rows || []).slice();
+    var idx = parseInt(rowNum, 10) - 1;
+
+    if (idx < 0 || idx >= rows.length) return;
+
+    rows.splice(idx, 1);
+    if (rows.length === 0) rows.push({ a: '', b: '' });
+
+    window.setState({ rows: rows });
+    if (typeof window.__gridRerender__ === 'function') window.__gridRerender__();
+    if (typeof window.updateCharCount === 'function') window.updateCharCount();
+    if (typeof window.syncStartTestButton === 'function') window.syncStartTestButton();
   }
 
   // Expose

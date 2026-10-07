@@ -79,7 +79,6 @@
               </div>
               <div class="acc-body">
                 <div class="acc-body-inner">
-                  <select id="list-select" class="ctrl-select"></select>
                   <div class="ctrl-row">
                     <button id="list-new-btn" class="ctrl-btn" title="New list">➕</button>
                     <button id="list-rename-btn" class="ctrl-btn" title="Rename list">✏️</button>
@@ -105,7 +104,6 @@
               </div>
               <div class="acc-body">
                 <div class="acc-body-inner">
-                  <select id="note-select" class="ctrl-select"></select>
                   <div class="ctrl-row">
                     <button id="note-new-btn" class="ctrl-btn" title="New note">➕</button>
                     <button id="note-rename-btn" class="ctrl-btn" title="Rename note">✏️</button>
@@ -209,6 +207,18 @@
             <h4 data-i18n="onboardingTitle">Welcome</h4>
             <p data-i18n="onboardingBody">Type or paste data into both columns, then click Hide on either column to test
               your memory.</p>
+          </div>
+
+          <!-- View toggle + dynamic dropdown -->
+          <div class="view-switch">
+            <div class="seg-toggle" id="seg-toggle">
+              <button class="seg-btn active" data-mode="lists" type="button" data-i18n="lists">Lists</button>
+              <button class="seg-btn"        data-mode="notes" type="button" data-i18n="notes">Notes</button>
+            </div>
+
+            <div class="dd-strip">
+              <select id="view-select" class="ctrl-select"></select>
+            </div>
           </div>
 
 
@@ -376,6 +386,7 @@
 
   <!-- Step 7: exam -->
   <script src="js/exam.js"></script>
+  <script src="js/workspace-toggle.js"></script>
 
   <!-- Bootstrap last -->
   <script src="js/main.js"></script>

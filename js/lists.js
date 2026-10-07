@@ -17,7 +17,6 @@
   var addRowBtn, clearBtn;
 
   function initLists() {
-    selectEl    = document.getElementById('list-select');
     newBtn      = document.getElementById('list-new-btn');
     renameBtn   = document.getElementById('list-rename-btn');
     deleteBtn   = document.getElementById('list-delete-btn');
@@ -27,16 +26,6 @@
     addRowBtn   = document.getElementById('add-row-btn');
     clearBtn    = document.getElementById('clear-btn');
 
-    refreshSelect();
-
-    // React to state changes (e.g. from onboarding)
-    window.subscribe(function (state, prev) {
-      if (state.lists !== prev.lists || state.activeList !== prev.activeList) {
-        refreshSelect();
-      }
-    });
-
-    if (selectEl)    selectEl.addEventListener('change', onSelectChange);
     if (newBtn)      newBtn.addEventListener('click', onNewList);
     if (renameBtn)   renameBtn.addEventListener('click', onRenameList);
     if (deleteBtn)   deleteBtn.addEventListener('click', onDeleteList);

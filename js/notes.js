@@ -5,10 +5,9 @@
 (function () {
   'use strict';
 
-  var selectEl, newBtn, renameBtn, deleteBtn, noteArea, noteResizer, workspace;
+  var newBtn, renameBtn, deleteBtn, noteArea, noteResizer, workspace;
 
   function initNotes() {
-    selectEl    = document.getElementById('note-select');
     newBtn      = document.getElementById('note-new-btn');
     renameBtn   = document.getElementById('note-rename-btn');
     deleteBtn   = document.getElementById('note-delete-btn');
@@ -16,58 +15,22 @@
     noteResizer = document.getElementById('note-resizer');
     workspace   = document.querySelector('.input-workspace');
 
-    refreshSelect();
-
     window.subscribe(function (state, prev) {
-      if (state.notes !== prev.notes || state.activeNote !== prev.activeNote || state.noteActive !== prev.noteActive) {
-        refreshSelect();
+      if (state.notes !== prev.notes
+       || state.activeNote !== prev.activeNote
+       || state.noteActive !== prev.noteActive
+       || state.viewMode !== prev.viewMode) {
         applyNoteMode();
       }
     });
 
-    if (selectEl)  selectEl.addEventListener('change', onSelectChange);
-    if (newBtn)    newBtn.addEventListener('click', onNewNote);
-    if (renameBtn) renameBtn.addEventListener('click', onRenameNote);
-    if (deleteBtn) deleteBtn.addEventListener('click', onDeleteNote);
-    if (noteArea)  noteArea.addEventListener('input', onNoteInput);
+    if (newBtn)      newBtn.addEventListener('click', onNewNote);
+    if (renameBtn)   renameBtn.addEventListener('click', onRenameNote);
+    if (deleteBtn)   deleteBtn.addEventListener('click', onDeleteNote);
+    if (noteArea)    noteArea.addEventListener('input', onNoteInput);
     if (noteResizer) initResize();
 
-    // Restore note mode if we were in it last session
-    var savedMode = window.storage.get('mode', 'grid');
-    var savedName = window.storage.get('activeNote', null);
-    var st = window.getState();
-    if (savedMode === 'note' && savedName && savedName in st.notes) {
-      enterNote(savedName);
-    }
-  }
-
-  // ─── Dropdown ────────────────────────────────────────────────────────────
-  function refreshSelect() {
-    if (!selectEl) return;
-    var state = window.getState();
-    var names = Object.keys(state.notes || {});
-    selectEl.innerHTML = '';
-
-    var placeholder = document.createElement('option');
-    placeholder.value = '';
-    placeholder.textContent = 'Select a Note';
-    placeholder.disabled = false;
-    selectEl.appendChild(placeholder);
-
-    names.forEach(function (name) {
-      var op = document.createElement('option');
-      op.value = name;
-      op.textContent = name;
-      selectEl.appendChild(op);
-    });
-
-    selectEl.value = state.noteActive ? (state.activeNote || '') : '';
-  }
-
-  function onSelectChange() {
-    var name = selectEl.value;
-    if (!name) { exitNote(); return; }
-    enterNote(name);
+    applyNoteMode();
   }
 
   // ─── Enter / Exit ────────────────────────────────────────────────────────
@@ -77,11 +40,9 @@
 
     window.setState({
       noteActive: true,
-      activeNote: name
+      activeNote: name,
+      viewMode: 'notes'
     });
-
-    window.storage.set('mode', 'note');
-    window.storage.set('activeNote', name);
 
     if (noteArea) noteArea.value = state.notes[name] || '';
     if (workspace) workspace.classList.add('note-mode');
@@ -92,23 +53,33 @@
   function exitNote() {
     window.setState({
       noteActive: false,
-      activeNote: null
+      activeNote: null,
+      viewMode: 'lists'
     });
-
-    window.storage.set('mode', 'grid');
-    window.storage.remove('activeNote');
 
     if (workspace) workspace.classList.remove('note-mode');
     if (typeof window.updateCharCount === 'function') window.updateCharCount();
   }
 
+  /**
+   * applyNoteMode — drives grid vs. textarea visibility.
+   * Visibility is controlled by viewMode, NOT by noteActive.
+   * Picking "Select a Note" keeps viewMode = 'notes' and just clears the textarea.
+   */
   function applyNoteMode() {
     var state = window.getState();
-    if (state.noteActive && state.activeNote) {
-      if (noteArea) noteArea.value = state.notes[state.activeNote] || '';
-      if (workspace) workspace.classList.add('note-mode');
-    } else {
-      if (workspace) workspace.classList.remove('note-mode');
+    var inNotesView = state.viewMode === 'notes';
+
+    if (noteArea) {
+      if (inNotesView && state.activeNote) {
+        noteArea.value = state.notes[state.activeNote] || '';
+      } else if (inNotesView) {
+        noteArea.value = '';
+      }
+    }
+
+    if (workspace) {
+      workspace.classList.toggle('note-mode', inNotesView);
     }
   }
 
@@ -131,7 +102,7 @@
 
   function onRenameNote() {
     var state = window.getState();
-    if (!state.noteActive || !state.activeNote) { alert('Select a note first.'); return; }
+    if (!state.activeNote) { alert('Select a note first.'); return; }
 
     var raw = window.prompt('Rename note:', state.activeNote);
     if (raw === null) return;
@@ -145,19 +116,17 @@
     });
 
     window.setState({ notes: notes, activeNote: name });
-    window.storage.set('activeNote', name);
   }
 
   function onDeleteNote() {
     var state = window.getState();
-    if (!state.noteActive || !state.activeNote) { alert('Select a note first.'); return; }
+    if (!state.activeNote) { alert('Select a note first.'); return; }
 
     var target = state.activeNote;
     var doDelete = function () {
       var notes = Object.assign({}, state.notes);
       delete notes[target];
-      window.setState({ notes: notes });
-      exitNote();
+      window.setState({ notes: notes, activeNote: null, noteActive: false });
     };
 
     if (typeof window.showConfirm === 'function') {
@@ -170,7 +139,7 @@
   // ─── Input ───────────────────────────────────────────────────────────────
   function onNoteInput() {
     var state = window.getState();
-    if (!state.noteActive || !state.activeNote) return;
+    if (!state.activeNote) return;
 
     var notes = Object.assign({}, state.notes);
     notes[state.activeNote] = noteArea.value;
