@@ -13,84 +13,62 @@
 (function () {
   'use strict';
 
-  var selectEl, newBtn, renameBtn, deleteBtn, exportBtn, importBtn, importInput;
-  var addRowBtn, clearBtn;
+  var exportBtn, importBtn, importInput, clearBtn;
 
   function initLists() {
-    newBtn      = document.getElementById('list-new-btn');
-    renameBtn   = document.getElementById('list-rename-btn');
-    deleteBtn   = document.getElementById('list-delete-btn');
     exportBtn   = document.getElementById('list-export-btn');
     importBtn   = document.getElementById('list-import-btn');
     importInput = document.getElementById('list-import-input');
-    addRowBtn   = document.getElementById('add-row-btn');
     clearBtn    = document.getElementById('clear-btn');
 
-    if (newBtn)      newBtn.addEventListener('click', onNewList);
-    if (renameBtn)   renameBtn.addEventListener('click', onRenameList);
-    if (deleteBtn)   deleteBtn.addEventListener('click', onDeleteList);
     if (exportBtn)   exportBtn.addEventListener('click', onExport);
     if (importBtn && importInput) {
       importBtn.addEventListener('click', function () { importInput.click(); });
       importInput.addEventListener('change', onImport);
     }
-
-    if (addRowBtn) addRowBtn.addEventListener('click', onAddRow);
     if (clearBtn)  clearBtn.addEventListener('click', onClear);
-  }
 
-  // ─── Dropdown ────────────────────────────────────────────────────────────
-  function refreshSelect() {
-    if (!selectEl) return;
-    var state = window.getState();
-    var names = Object.keys(state.lists || {});
-    selectEl.innerHTML = '';
-
-    var placeholder = document.createElement('option');
-    placeholder.value = '';
-    placeholder.textContent = 'Select a List';
-    placeholder.disabled = false;
-    selectEl.appendChild(placeholder);
-
-    names.forEach(function (name) {
-      var op = document.createElement('option');
-      op.value = name;
-      op.textContent = name;
-      selectEl.appendChild(op);
-    });
-
-        // Show placeholder when a note is active, otherwise show the active list
-    selectEl.value = state.noteActive ? '' : (state.activeList || '');
-  }
-
-  function onSelectChange() {
-    var name = selectEl.value;
-    var state = window.getState();
-
-    // Always exit note mode when a list is picked (even the same one)
-    if (state.noteActive) {
-      window.setState({ noteActive: false, activeNote: null });
-      window.storage.set('mode', 'grid');
-      window.storage.remove('activeNote');
+    // Bootstrap: ensure at least one list exists on first load
+    var st = window.getState();
+    if (Object.keys(st.lists || {}).length === 0) {
+      var defaultIdentifier = '__DEFAULT_LIST__';
+      window.setState({
+        lists: {},
+        activeList: defaultIdentifier,
+        rows: [{ a: '', b: '' }]
+      });
+      var seeded = {};
+      seeded[defaultIdentifier] = '';
+      window.setState({ lists: seeded });
+    } else if (!st.activeList || !(st.activeList in st.lists)) {
+      var first = Object.keys(st.lists)[0];
+      window.setState({
+        activeList: first,
+        rows: parseList(st.lists[first])
+      });
     }
 
-    // If picking the same list, exit early (but note mode is already exited above)
-    if (!(name in state.lists) || name === state.activeList) return;
+    // FIX: Provide a globally safe getDisplayName function so other files don't crash
+    window.getDisplayName = function (key, viewMode) {
+      if (key === '__DEFAULT_LIST__' && viewMode === 'lists') {
+        return (window.__i18n__ && window.__i18n__.t) ? window.__i18n__.t('dropdownLists') : 'Untitled List';
+      }
+      if (key === '__DEFAULT_NOTE__' && viewMode === 'notes') {
+        return (window.__i18n__ && window.__i18n__.t) ? window.__i18n__.t('dropdownNotes') : 'Untitled Note';
+      }
+      return key;
+    };
 
-    // Save current grid into the outgoing list
-    var lists = Object.assign({}, state.lists);
-    lists[state.activeList] = serializeGrid();
-
-    window.setState({
-      lists: lists,
-      activeList: name,
-      rows: parseList(lists[name])
-    });
-
-    if (typeof window.__gridRerender__ === 'function') window.__gridRerender__();
-    if (typeof window.updateCharCount === 'function') window.updateCharCount();
-    if (typeof window.syncStartTestButton === 'function') window.syncStartTestButton();
+    // Expose functions so the workspace mgmt buttons can call them
+    window.listActions = {
+      create: onNewList,
+      rename: onRenameList,
+      remove: onDeleteList
+    };
   }
+
+  
+
 
   // ─── New / Rename / Delete ───────────────────────────────────────────────
   function onNewList() {
@@ -180,6 +158,20 @@
   function onImport(e) {
     var file = e.target.files && e.target.files[0];
     if (!file) return;
+
+      var okExt = /\.(txt|csv|tsv|md)$/i.test(file.name);
+    if (!okExt) {
+      alert('Only .txt, .tsv, .md and .csv files are allowed.');
+      importInput.value = '';
+      return;
+    }
+
+    var MAX_BYTES = 500 * 1024;
+    if (file.size > MAX_BYTES) {
+      alert('File too large. Max 500 KB.');
+      importInput.value = '';
+      return;
+    }
 
     var reader = new FileReader();
     reader.onload = function (ev) {

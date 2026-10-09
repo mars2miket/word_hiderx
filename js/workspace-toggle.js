@@ -22,18 +22,38 @@
     // Wire the dropdown
     viewSelect.addEventListener('change', onDropdownChange);
 
+    // Wire management buttons — route by viewMode
+    var mgmtNew    = document.getElementById('mgmt-new-btn');
+    var mgmtRename = document.getElementById('mgmt-rename-btn');
+    var mgmtDelete = document.getElementById('mgmt-delete-btn');
+
+    function runMgmt(action) {
+      var mode = window.getState().viewMode;
+      var actions = (mode === 'lists') ? window.listActions : window.noteActions;
+      if (actions && typeof actions[action] === 'function') {
+        actions[action]();
+      }
+    }
+
+    if (mgmtNew)    mgmtNew.addEventListener('click',    function () { runMgmt('create'); });
+    if (mgmtRename) mgmtRename.addEventListener('click', function () { runMgmt('rename'); });
+    if (mgmtDelete) mgmtDelete.addEventListener('click', function () { runMgmt('remove'); });
+
     // React to state changes
     window.subscribe(function (state, prev) {
       if (state.viewMode !== prev.viewMode) {
         applyMode();
       }
+      // FIX: Added state.lang check to force a dropdown update when language shifts
       if (state.lists !== prev.lists
        || state.activeList !== prev.activeList
        || state.notes !== prev.notes
-       || state.activeNote !== prev.activeNote) {
+       || state.activeNote !== prev.activeNote
+       || state.lang !== prev.lang) {
         refreshDropdown();
       }
     });
+
 
     // Initial render
     applyMode();
@@ -55,13 +75,14 @@
 
     // Sync noteActive flag
     if (mode === 'notes') {
-      // Restore last note, or fall back to placeholder
+      // Bootstrap guarantees at least one note exists
       var lastNote = state.activeNote;
       var noteExists = lastNote && lastNote in state.notes;
+      var targetNote = noteExists ? lastNote : Object.keys(state.notes)[0];
       window.setState({
         viewMode: 'notes',
-        noteActive: !!noteExists,
-        activeNote: noteExists ? lastNote : null
+        noteActive: !!targetNote,
+        activeNote: targetNote || null
       });
     } else {
       window.setState({
@@ -84,6 +105,9 @@
 
     // Refresh dropdown options
     refreshDropdown();
+
+    // Refresh char count for the current view
+    if (typeof window.updateCharCount === 'function') window.updateCharCount();
   }
 
   // ─── Dropdown ────────────────────────────────────────────────────────────
@@ -95,44 +119,43 @@
 
     if (mode === 'lists') {
       var listNames = Object.keys(state.lists || {});
-
-      // Placeholder
-      var ph = document.createElement('option');
-      ph.value = '';
-      ph.textContent = 'Select a List';
-      viewSelect.appendChild(ph);
-
       listNames.forEach(function (name) {
         var op = document.createElement('option');
         op.value = name;
-        op.textContent = name;
+        
+        // FIX: Dynamically display localized string if the item is the initial default list
+        if (name === 'Untitled List' || name === '__DEFAULT_LIST__') {
+          op.textContent = (window.__i18n__ && window.__i18n__.t) ? window.__i18n__.t('dropdownLists') : 'Untitled List';
+        } else {
+          op.textContent = name;
+        }
+        
         viewSelect.appendChild(op);
       });
 
-      // Restore last selected list
       viewSelect.value = state.activeList && state.activeList in state.lists
         ? state.activeList
-        : '';
+        : (listNames[0] || '');
 
     } else {
       var noteNames = Object.keys(state.notes || {});
-
-      var ph2 = document.createElement('option');
-      ph2.value = '';
-      ph2.textContent = 'Select a Note';
-      viewSelect.appendChild(ph2);
-
       noteNames.forEach(function (name) {
         var op = document.createElement('option');
         op.value = name;
-        op.textContent = name;
+        
+        // FIX: Dynamically display localized string if the item is the initial default note
+        if (name === 'Untitled Note' || name === '__DEFAULT_NOTE__') {
+          op.textContent = (window.__i18n__ && window.__i18n__.t) ? window.__i18n__.t('dropdownNotes') : 'Untitled Note';
+        } else {
+          op.textContent = name;
+        }
+        
         viewSelect.appendChild(op);
       });
 
-      // Restore last selected note
       viewSelect.value = state.activeNote && state.activeNote in state.notes
         ? state.activeNote
-        : '';
+        : (noteNames[0] || '');
     }
   }
 
@@ -141,7 +164,6 @@
     var state = window.getState();
 
     if (state.viewMode === 'lists') {
-      // Selected a list
       if (!name || !(name in state.lists)) return;
       if (name === state.activeList) return;
 
@@ -162,12 +184,7 @@
       if (typeof window.syncStartTestButton === 'function') window.syncStartTestButton();
 
     } else {
-      // Selected a note
-      if (!name || !(name in state.notes)) {
-        // Placeholder picked — exit note
-        window.setState({ noteActive: false, activeNote: null });
-        return;
-      }
+      if (!name || !(name in state.notes)) return;
 
       window.setState({
         noteActive: true,

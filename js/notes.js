@@ -1,16 +1,13 @@
 /**
  * notes.js — classic script.
- * Manages the Notes accordion and the note textarea.
+ * Manages note textarea, note mode, and note CRUD.
  */
 (function () {
   'use strict';
 
-  var newBtn, renameBtn, deleteBtn, noteArea, noteResizer, workspace;
+  var noteArea, noteResizer, workspace;
 
   function initNotes() {
-    newBtn      = document.getElementById('note-new-btn');
-    renameBtn   = document.getElementById('note-rename-btn');
-    deleteBtn   = document.getElementById('note-delete-btn');
     noteArea    = document.getElementById('note-area');
     noteResizer = document.getElementById('note-resizer');
     workspace   = document.querySelector('.input-workspace');
@@ -24,13 +21,35 @@
       }
     });
 
-    if (newBtn)      newBtn.addEventListener('click', onNewNote);
-    if (renameBtn)   renameBtn.addEventListener('click', onRenameNote);
-    if (deleteBtn)   deleteBtn.addEventListener('click', onDeleteNote);
     if (noteArea)    noteArea.addEventListener('input', onNoteInput);
     if (noteResizer) initResize();
 
     applyNoteMode();
+
+    // Bootstrap: ensure at least one note exists on first load
+    var st = window.getState();
+    if (Object.keys(st.notes || {}).length === 0) {
+      var defaultNote = (window.__i18n__ && window.__i18n__.t)
+        ? window.__i18n__.t('dropdownNotes')
+        : 'Untitled Note';
+      var seededNotes = {};
+      seededNotes[defaultNote] = '';
+      window.setState({
+        notes: seededNotes,
+        activeNote: defaultNote,
+        noteActive: false
+      });
+    } else if (st.activeNote && !(st.activeNote in st.notes)) {
+      var first = Object.keys(st.notes)[0];
+      window.setState({ activeNote: first });
+    }
+
+    // Expose functions so the workspace mgmt buttons can call them
+    window.noteActions = {
+      create: onNewNote,
+      rename: onRenameNote,
+      remove: onDeleteNote
+    };
   }
 
   // ─── Enter / Exit ────────────────────────────────────────────────────────
@@ -64,7 +83,6 @@
   /**
    * applyNoteMode — drives grid vs. textarea visibility.
    * Visibility is controlled by viewMode, NOT by noteActive.
-   * Picking "Select a Note" keeps viewMode = 'notes' and just clears the textarea.
    */
   function applyNoteMode() {
     var state = window.getState();

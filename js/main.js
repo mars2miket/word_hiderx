@@ -58,10 +58,8 @@
       ? rows
       : [{ a: '', b: '' }];
 
-    // If no list exists yet, create a default one
-    var safeLists = lists && Object.keys(lists).length > 0
-      ? lists
-      : { 'List 1': '' };
+    // If no list exists yet, leave empty — lists.js creates the default
+    var safeLists = lists || {};
 
     var safeActiveList = activeList && activeList in safeLists
       ? activeList
@@ -121,7 +119,7 @@
       }
     });
   });
-})();
+  
 
   // ─── 4. Kick off UI modules ─────────────────────────────────────────────
   if (typeof window.initModal === 'function')      window.initModal();
@@ -135,3 +133,4 @@
   if (typeof window.initWorkspaceToggle === 'function') window.initWorkspaceToggle();
 
   console.log('[RecallRx] Data layer ready.');
+})();
