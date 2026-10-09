@@ -35,6 +35,7 @@ window.__LOCALES__.vi = {
   dropdownNotes: "Ghi chú chưa đặt tên",
   examScoreOutOf: "trên",
   examCompleteHint: "Nhấp vào Ghi chú và chọn Kết quả kiểm tra trong menu thả xuống để xem điểm của bạn.",
+  analytics: "Phân tích",
 
   // Footer
   timer: "Đồng hồ",

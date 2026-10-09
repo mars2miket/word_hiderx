@@ -37,7 +37,7 @@
     viewer        = document.getElementById('recall-viewer');
     counterStrip  = document.getElementById('exam-counter');
     counterWrap   = document.querySelector('.exam-counter-strip');
-    gridContainer = document.getElementById('spreadsheet-container');
+    gridContainer = document.getElementById('grid-workspace');
     gridFooter    = document.querySelector('.grid-footer');
     hintCard      = document.getElementById('onboarding-hint');
 
