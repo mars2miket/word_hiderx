@@ -36,6 +36,11 @@ window.__LOCALES__.en = {
   examScoreOutOf: "out of",
   examCompleteHint: "Click Notes and select Test Results in the dropdown menu to see how you've scored.",
   analytics: "Analytics",
+  analyticsTotalTests: "Total Tests",
+  analyticsAvgAccuracy: "Average Accuracy",
+  analyticsTopMissed: "Top 5 Missed Items",
+  analyticsEmpty: "No test data found. Complete an exam to see analytics!",
+  analyticsPerfect: "Perfect score! No missed items tracked.",
 
   // Footer
   timer: "Timer",
