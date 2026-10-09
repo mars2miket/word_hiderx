@@ -1,42 +1,10 @@
 /* ==========================================================================
-   WIDE SCREEN (≥701px)
-   ========================================================================== */
-@media (min-width: 701px) {
-
-  .exam-body.mode-choice,
-  .exam-body.mode-select,
-  .exam-body.mode-tf {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 6px;
-    margin-bottom: 8px;
-  }
-
-  .exam-body.mode-select > p,
-  .exam-body.mode-tf > p {
-    grid-column: 1 / -1;
-    margin: 0;
-  }
-
-  .exam-body.mode-choice .exam-choice,
-  .exam-body.mode-select .exam-check,
-  .exam-body.mode-tf .exam-choice {
-    margin-bottom: 0;
-  }
-
-  /* Hide mobile-only elements on desktop */
-  .mobile-playback-bar,
-  .mobile-popup {
-    display: none !important;
-  }
-}
-
-/* ==========================================================================
-   MOBILE (≤700px) — app-shell pattern
+   MOBILE (≤700px) — OPTION B: grid is the scroller, header + footer pinned
    ========================================================================== */
 @media (max-width: 700px) {
 
-  /* ─── App shell: fixed frame, nothing escapes ─── */
+  .acc-section[data-acc="controls"] { display: none; }
+
   .app-shell {
     height: var(--app-height, 100dvh);
     display: flex;
@@ -44,18 +12,14 @@
     overflow: hidden;
   }
 
-  /* ─── Top bar: normal flow, never scrolls ─── */
   .top-sticky-bar {
     height: 48px;
     padding: 0 14px;
     flex-shrink: 0;
   }
 
-  .top-sticky-bar .brand {
-    font-size: 17px;
-  }
+  .top-sticky-bar .brand { font-size: 17px; }
 
-  /* ─── Layout container: fills remaining space, hosts no scroll ─── */
   .app-layout-container {
     flex: 1;
     min-height: 0;
@@ -71,21 +35,16 @@
     flex-direction: column;
   }
 
-  /* ─── Sidebar overlay (unchanged behavior) ─── */
   .controls-sidebar {
     width: 100% !important;
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
+    top: 0; left: 0; right: 0;
     height: 100%;
     z-index: 15;
     border-right: none;
     border-bottom: 1px solid var(--border-color);
     overflow-y: auto !important;
-    transition:
-      height .35s var(--ease),
-      border-bottom-width .35s var(--ease);
+    transition: height .35s var(--ease), border-bottom-width .35s var(--ease);
   }
 
   .sidebar-wrapper.collapsed .controls-sidebar {
@@ -103,60 +62,61 @@
     overflow-y: visible;
   }
 
-  /* ─── Main workspace: THE single scroll region ─── */
+  /* Workspace: no scroll, pinned columns layout */
   .input-workspace {
     flex: 1;
     min-height: 0;
-    overflow-y: auto;
+    overflow: hidden;
     padding: 12px;
     padding-bottom: calc(72px + env(safe-area-inset-bottom, 0));
     display: flex;
     flex-direction: column;
   }
 
-  /* ─── Hint card ─── */
   .hint-card {
     max-height: 30vh;
     overflow-y: auto;
     flex-shrink: 0;
+    margin-bottom: 12px;
   }
 
-  /* ─── Grid: no longer its own scroller on mobile ─── */
+  /* The grid is now THE scroller */
   .spreadsheet-grid {
-    flex: 0 0 auto;
-    min-height: 0;
-    max-height: none;
-    overflow-y: visible;
-  }
-
-  /* ─── Grid footer: sits in flow, no sticky ─── */
-  .grid-footer {
-    padding-top: 6px;
-    flex-shrink: 0;
-  }
-
-  /* ─── Notes / exam viewer ─── */
-  #note-area {
-    width: 100%;
-    min-width: 0;
-  }
-
-  #recall-viewer {
     flex: 1 1 auto;
     min-height: 0;
     max-height: none;
+    overflow-y: auto;
   }
 
-  /* ─── Mobile playback bar (fixed, unchanged) ─── */
+  /* Header pins to top of grid scroll area */
+  .header-cell {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+  }
+
+  /* Footer pins just above playback bar */
+  .grid-footer {
+    padding-top: 6px;
+    padding-bottom: 4px;
+    flex-shrink: 0;
+    position: sticky;
+    bottom: 0;
+    background: var(--bg-app);
+    z-index: 5;
+  }
+
+  #note-area { width: 100%; min-width: 0; }
+
+  #recall-viewer { flex: 1 1 auto; min-height: 0; max-height: none; }
+
   .mobile-playback-bar {
     display: flex !important;
     flex-direction: row !important;
     align-items: center;
     justify-content: space-around;
     position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    left: 0; right: 0; bottom: 0;
     width: 100%;
     height: 56px;
     background: var(--bg-surface);
@@ -169,28 +129,11 @@
     gap: 4px;
   }
 
-  .mobile-playback-bar .pb-btn {
-    width: 44px;
-    height: 44px;
-    flex: 0 0 auto;
-  }
+  .mobile-playback-bar .pb-btn { width: 44px; height: 44px; flex: 0 0 auto; }
+  .mobile-playback-bar .pb-btn svg { width: 22px; height: 22px; }
+  .mobile-playback-bar .play-pause { width: 44px; height: 44px; }
+  .mobile-playback-bar .play-pause svg { width: 20px; height: 20px; }
 
-  .mobile-playback-bar .pb-btn svg {
-    width: 22px;
-    height: 22px;
-  }
-
-  .mobile-playback-bar .play-pause {
-    width: 44px;
-    height: 44px;
-  }
-
-  .mobile-playback-bar .play-pause svg {
-    width: 20px;
-    height: 20px;
-  }
-
-  /* ─── Mobile popups (fixed, unchanged) ─── */
   .mobile-popup {
     display: none;
     flex-direction: column;
@@ -207,9 +150,7 @@
     min-width: 130px;
   }
 
-  .mobile-popup.visible {
-    display: flex;
-  }
+  .mobile-popup.visible { display: flex; }
 
   .mobile-popup-item {
     padding: 10px 14px;
@@ -223,12 +164,5 @@
   }
 
   .mobile-popup-item:hover,
-  .mobile-popup-item:active {
-    background: var(--accent-soft);
-  }
-
-  /* ─── Controls accordion hidden on mobile (unchanged) ─── */
-  .acc-section[data-acc="controls"] {
-    display: none;
-  }
+  .mobile-popup-item:active { background: var(--accent-soft); }
 }
