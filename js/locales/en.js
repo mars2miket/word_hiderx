@@ -21,7 +21,7 @@ window.__LOCALES__.en = {
   examFalse: "False",
   examCorrect: "✅ Correct! Great job.",
   examIncorrect: "❌ Incorrect. Expected:",
-  startTestHelper: "When you're ready, test your memory.",
+  startTestHelper: "Ready to test?",
   startTestBtn: "Start Test",
   examBackBtn: "← Back",
   examListLabel: "List",
@@ -48,6 +48,7 @@ window.__LOCALES__.en = {
   resetTimer: "Reset",
   chars: "Chars",
   est: "Est",
+  stopTime:"Stop Timer",
 
   // Grid columns
   hideColA: "Hide Col A",
@@ -144,7 +145,7 @@ window.__LOCALES__.en = {
   resultMode: "Test Mode",
   resultScore: "Score",
   resultIncorrect: "Incorrect Answers",
-  examTotal: "Total",
+  examTotal: "Total questions",
   testResultsNote: "Test Results",
   errNoteLocked: "This note is locked and cannot be edited, renamed, or deleted.",
   saveMissedBtn: "Save missed as list",
@@ -167,5 +168,21 @@ window.__LOCALES__.en = {
   tileIncorrect: "Incorrect",
   resultPerfect: "Perfect score!",
   dupWarning: "Duplicate in this column",
+
+  // Question Bank
+  qbankBtn: "Question Bank",
+  qbankTitle: "Question Bank",
+  qbankSearch: "Search categories...",
+  qbankLeft: "{left} of {total} left",
+  qbankHowMany: "Questions",
+  qbankUpTo: "Up to {n} available",
+  qbankAllUsed: "All questions used. Reset to start over.",
+  qbankReset: "Reset category",
+  qbankResetConfirm: 'Reset "{name}"? Used questions can appear again.',
+  qbankImport: "Create list",
+  qbankLoading: "Loading...",
+  qbankLoadErr: "Could not load the question bank.",
+  qbankNone: "No categories found.",
+  qbankSelect: "Select a category.",
 
 };

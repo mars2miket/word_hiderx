@@ -6,6 +6,7 @@
   flex-direction: column;
   width: 100%;
   height: 100vh;
+  height: 100dvh;
   overflow: hidden;
 }
 
@@ -37,7 +38,7 @@
 
 .brand-name {
   margin-right: auto;
-  color: #7c5ce8;
+  color: #6366F1;
 }
 
 .lang-label {
@@ -109,7 +110,7 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
-  padding: 12px;
+  padding: 10px 30px;
   overflow: hidden;
   box-sizing: border-box;
 }
@@ -120,7 +121,6 @@
 .sidebar-footer {
   margin-top: auto;
   padding-top: 10px;
-  border-top: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -145,21 +145,6 @@
   justify-content: space-between;
   font-size: 11px;
   color: var(--text-muted);
-  background: var(--bg-surface);
   padding: 6px 8px;
   border-radius: 6px;
-}
-
-.grid-footer {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  flex-shrink: 0;
-  position: sticky;
-  bottom: 0;
-  background: var(--bg-app);
-  padding-top: 10px;
-  padding-bottom: 4px;
-  margin-top: auto;
-  z-index: 5;
 }

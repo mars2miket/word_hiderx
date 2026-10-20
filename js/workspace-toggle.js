@@ -83,6 +83,11 @@
     var state = window.getState();
     if (state.viewMode === mode) return;
 
+    if (mode === 'analytics' && typeof window.stopSpeech === 'function' &&
+        (state.isSpeaking || state.isPaused)) {
+      window.stopSpeech();
+    }
+
     // Save the current grid into its list before leaving Lists mode
     if (state.viewMode === 'lists' && typeof window.serializeGrid === 'function') {
       var lists = Object.assign({}, state.lists);
@@ -105,8 +110,7 @@
     } else if (mode === 'analytics') {
       window.setState({
         viewMode: 'analytics',
-        noteActive: false,
-        activeNote: null // Clears note selection so it doesn't try to show grid or notes
+        noteActive: false
       });
     } else {
       window.setState({

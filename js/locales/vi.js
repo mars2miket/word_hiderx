@@ -21,7 +21,7 @@ window.__LOCALES__.vi = {
   examFalse: "Sai",
   examCorrect: "✅ Chính xác!",
   examIncorrect: "❌ Sai. Đáp án đúng:",
-  startTestHelper: "Khi bạn đã sẵn sàng, hãy kiểm tra trí nhớ.",
+  startTestHelper: "Sẵn sàng kiểm tra chưa?",
   startTestBtn: "Kiểm tra",
   examBackBtn: "← Quay lại",
   examListLabel: "Danh sách",
@@ -48,6 +48,7 @@ window.__LOCALES__.vi = {
   resetTimer: "Đặt lại",
   chars: "Ký tự",
   est: "Ước tính",
+  stopTime:"Dừng bộ đếm",
 
   // Grid columns
   hideColA: "Ẩn cột A",
@@ -146,7 +147,7 @@ window.__LOCALES__.vi = {
   resultMode: "Chế độ",
   resultScore: "Điểm",
   resultIncorrect: "Câu trả lời sai",
-  examTotal: "Tổng",
+  examTotal: "Tổng số câu hỏi",
   testResultsNote: "Kết quả kiểm tra",
   errNoteLocked: "Ghi chú này bị khóa, không thể sửa, đổi tên hoặc xóa.",
   saveMissedBtn: "Lưu mục sai thành danh sách",
@@ -169,5 +170,21 @@ window.__LOCALES__.vi = {
   tileIncorrect: "Sai",
   resultPerfect: "Điểm tuyệt đối!",
   dupWarning: "Trùng trong cột này",
+
+  // Question Bank
+  qbankBtn: "Ngân hàng câu hỏi",
+  qbankTitle: "Ngân hàng câu hỏi",
+  qbankSearch: "Tìm danh mục...",
+  qbankLeft: "còn {left}/{total}",
+  qbankHowMany: "Số câu hỏi",
+  qbankUpTo: "Tối đa {n} câu",
+  qbankAllUsed: "Đã dùng hết câu hỏi. Đặt lại để bắt đầu lại.",
+  qbankReset: "Đặt lại danh mục",
+  qbankResetConfirm: 'Đặt lại "{name}"? Các câu hỏi đã dùng có thể xuất hiện lại.',
+  qbankImport: "Tạo danh sách",
+  qbankLoading: "Đang tải...",
+  qbankLoadErr: "Không thể tải ngân hàng câu hỏi.",
+  qbankNone: "Không tìm thấy danh mục.",
+  qbankSelect: "Chọn một danh mục.",
 
 };
