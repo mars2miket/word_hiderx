@@ -14,7 +14,6 @@
   <link rel="stylesheet" href="styles/layout.css">
   <link rel="stylesheet" href="styles/components.css">
   <link rel="stylesheet" href="styles/responsive.css">
-  <link rel="stylesheet" href="styles/fixes.css">
   <link rel="stylesheet" href="styles/qbank.css">
 </head>
 
@@ -48,11 +47,20 @@
 
         <span class="brand-name">RecallRx</span>
 
-        <button id="lang-toggle" class="icon-btn" type="button" aria-label="Toggle language">
+        <button id="dashboard-toggle" class="icon-btn" type="button" data-i18n-title="dashboard" aria-label="Dashboard">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <line x1="6" y1="20" x2="6" y2="14"></line>
+            <line x1="12" y1="20" x2="12" y2="4"></line>
+            <line x1="18" y1="20" x2="18" y2="10"></line>
+          </svg>
+        </button>
+
+        <button id="lang-toggle" class="icon-btn" type="button" aria-label="Toggle language" data-i18n-title="changeLanguage">
           <span id="lang-toggle-label" class="lang-label">EN</span>
         </button>
 
-        <button id="theme-toggle" class="icon-btn" type="button" aria-label="Toggle theme">
+        <button id="theme-toggle" class="icon-btn" type="button" aria-label="Toggle theme" data-i18n-title="theme">
           <svg class="icon-moon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79Z" />
@@ -200,14 +208,13 @@
               <div class="seg-toggle" id="seg-toggle">
                 <button class="seg-btn active" data-mode="lists" type="button" data-i18n="lists">Lists</button>
                 <button class="seg-btn" data-mode="notes" type="button" data-i18n="notes">Notes</button>
-                <button class="seg-btn" data-mode="analytics" type="button" data-i18n="dashboard">Dashboard</button>
               </div>
             </div>
 
             <div class="view-row">
               <select id="view-select" class="ctrl-select"></select>
               <button id="mgmt-menu-btn" class="mgmt-btn" type="button" aria-label="List actions" aria-haspopup="true"
-                aria-expanded="false">⋯</button>
+                aria-expanded="false" data-i18n-title="moreOptions">⋯</button>
               <button id="hint-show-btn" class="mgmt-btn" type="button" data-i18n-title="showHint"
                 aria-label="Show help">?</button>
               <div class="mgmt-group" id="mgmt-group">
@@ -215,7 +222,7 @@
                 <button id="mgmt-new-btn" class="mgmt-btn" type="button" data-i18n-title="addList"
                   data-i18n="addList">New</button>
                 <button id="mgmt-rename-btn" class="mgmt-btn" type="button" data-i18n-title="editList"
-                  data-i18n="editList">Edit</button>
+                  data-i18n="rename">Rename</button>
                 <button id="list-export-btn" class="mgmt-btn" type="button" data-i18n-title="expList"
                   data-i18n="expList">Exp</button>
                 <button id="list-import-btn" class="mgmt-btn" type="button" data-i18n-title="impList"

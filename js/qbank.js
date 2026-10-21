@@ -1,6 +1,6 @@
 /**
  * qbank.js — classic script.
- * Question Bank picker: loads Q_Bank.csv (Category,Q,A), lets the user pick a
+ * Question Bank picker: loads Q_Bank.csv (Category,Q,A,W1,W2,W3), lets the user pick a
  * category + a question count, and imports random UNUSED questions as a new list.
  * Used questions are tracked by a hash of the question text (not by category).
  */
@@ -11,6 +11,7 @@
   var DEFAULT_COUNT = 20;
   var USED_KEY = 'qbankUsed';
   var SEQ_KEY = 'qbankSeq';
+  var WRONG_KEY = 'qbankWrong';   // { questionHash: [wrong options] }
 
   var data = null;            // { category: [{ q, a, id }] }
   var selected = null;
@@ -63,8 +64,9 @@
       var cat = clean(r[0]), q = clean(r[1]), a = clean(r[2]);
       if (i === 0 && cat.toLowerCase() === 'category') return;
       if (!cat || !q || !a) return;
+      var w = [r[3], r[4], r[5]].map(clean).filter(Boolean);
       (out[cat] = out[cat] || []).push({
-        q: q, a: a, id: hash(q.replace(/\s+/g, ' ').toLowerCase())
+        q: q, a: a, w: w, id: hash(q.replace(/\s+/g, ' ').toLowerCase())
       });
     });
     return out;
@@ -291,6 +293,9 @@
 
     lists[name] = picked.map(function (i) { return i.q + '\t' + i.a; }).join('\n');
     picked.forEach(function (i) { used[i.id] = 1; });
+    var wrong = window.storage.get(WRONG_KEY, {}) || {};
+    picked.forEach(function (i) { if (i.w && i.w.length) wrong[i.id] = i.w; });
+    window.storage.set(WRONG_KEY, wrong);
     saveUsedSet(used);
 
     window.setState({
@@ -309,6 +314,13 @@
     var btn = document.getElementById('qbank-open-btn');
     if (btn) btn.addEventListener('click', open);
   }
+
+  // Curated wrong options for a prompt (or null). Used by exam.js.
+  window.qbankWrongFor = function (prompt) {
+    var map = window.storage.get(WRONG_KEY, {}) || {};
+    var w = map[hash(String(prompt || '').replace(/\s+/g, ' ').trim().toLowerCase())];
+    return (w && w.length) ? w : null;
+  };
 
   window.initQbank = initQbank;
 })();
