@@ -24,6 +24,8 @@
   var speedSlider, speedValue, genderFilter, voiceSearch, voiceSelect;
   var timerDisplay, timerResetBtn;
   var menuBtn, menuPopup, speedOpenBtn, speedPopup;
+  // NEW: desktop popup refs
+  var dtMenuBtn, dtMenuPopup, dtSpeedOpenBtn, dtSpeedPopup;
 
   // ─── Runtime ─────────────────────────────────────────────────────────────
   var allVoices = [];
@@ -72,6 +74,11 @@
     menuPopup          = document.getElementById('m-menu-popup');
     speedOpenBtn       = document.getElementById('m-speed-open-btn');
     speedPopup         = document.getElementById('m-speed-popup');
+    // NEW: desktop popup refs
+    dtMenuBtn          = document.getElementById('dt-menu-btn');
+    dtMenuPopup        = document.getElementById('dt-menu-popup');
+    dtSpeedOpenBtn     = document.getElementById('dt-speed-open-btn');
+    dtSpeedPopup       = document.getElementById('dt-speed-popup');
 
     if (!synth) {
       console.warn('[speech] SpeechSynthesis not supported');
@@ -128,6 +135,9 @@
 
     // ─── Mobile popups ───
     initMobilePopups();
+
+    // ─── Desktop popups (NEW) ───
+    initDesktopPopups();
 
     // ─── React to state changes ───
     window.subscribe(function (state, prev) {
@@ -575,9 +585,86 @@
       });
     });
 
+    var vOpen = document.getElementById('m-voices-open-btn');
+var vModal = document.getElementById('voices-modal');
+var vSearch = document.getElementById('vm-search');
+var vSelect = document.getElementById('vm-select');
+var vClose = document.getElementById('vm-close');
+
+if (vOpen && vModal && vSearch && vSelect && vClose) {
+  function syncVoices() {
+    vSelect.innerHTML = voiceSelect.innerHTML;
+    vSelect.selectedIndex = voiceSelect.selectedIndex;
+  }
+
+  vOpen.addEventListener('click', function (e) {
+    e.stopPropagation();
+    closeAll();
+    syncVoices();
+    vModal.classList.add('visible');
+  });
+
+  vSearch.addEventListener('input', function () {
+    voiceSearch.value = vSearch.value;
+    voiceSearch.dispatchEvent(new Event('input'));
+    setTimeout(syncVoices, 250);
+  });
+
+  vSelect.addEventListener('change', function () {
+    voiceSelect.selectedIndex = vSelect.selectedIndex;
+    voiceSelect.dispatchEvent(new Event('change'));
+  });
+
+  vClose.addEventListener('click', function () {
+    vModal.classList.remove('visible');
+  });
+}
+
     document.addEventListener('click', function (e) {
       if (!menuPopup.contains(e.target) && e.target !== menuBtn &&
           !speedPopup.contains(e.target)) {
+        closeAll();
+      }
+    });
+  }
+
+  // ─── Desktop popups (NEW) ────────────────────────────────────────────────
+  // Mirrors initMobilePopups() but wires the dt-* elements. Kept separate so
+  // the mobile code path is untouched.
+  function initDesktopPopups() {
+    if (!dtMenuBtn || !dtMenuPopup || !dtSpeedOpenBtn || !dtSpeedPopup) return;
+
+    function closeAll() {
+      dtMenuPopup.classList.remove('visible');
+      dtSpeedPopup.classList.remove('visible');
+    }
+
+    dtMenuBtn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var wasOpen = dtMenuPopup.classList.contains('visible');
+      closeAll();
+      if (!wasOpen) dtMenuPopup.classList.add('visible');
+    });
+
+    dtSpeedOpenBtn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      dtMenuPopup.classList.remove('visible');
+      dtSpeedPopup.classList.add('visible');
+    });
+
+    dtSpeedPopup.querySelectorAll('.speed-opt').forEach(function (btn) {
+      btn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var val = parseFloat(btn.dataset.speed);
+        speedSlider.value = val;
+        speedSlider.dispatchEvent(new Event('input', { bubbles: true }));
+        closeAll();
+      });
+    });
+
+    document.addEventListener('click', function (e) {
+      if (!dtMenuPopup.contains(e.target) && e.target !== dtMenuBtn &&
+          !dtSpeedPopup.contains(e.target)) {
         closeAll();
       }
     });

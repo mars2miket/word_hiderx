@@ -10,8 +10,7 @@
   <meta name="theme-color" content="#6366F1">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
 
-  <link rel="stylesheet" href="styles/base.css">
-  <link rel="stylesheet" href="styles/layout.css">
+  <link rel="stylesheet" href="styles/base-layout.css">
   <link rel="stylesheet" href="styles/components.css">
   <link rel="stylesheet" href="styles/responsive.css">
   <link rel="stylesheet" href="styles/qbank.css">
@@ -47,16 +46,10 @@
 
         <span class="brand-name">RecallRx</span>
 
-        <button id="dashboard-toggle" class="icon-btn" type="button" data-i18n-title="dashboard" aria-label="Dashboard">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"
-            stroke-linecap="round" stroke-linejoin="round">
-            <line x1="6" y1="20" x2="6" y2="14"></line>
-            <line x1="12" y1="20" x2="12" y2="4"></line>
-            <line x1="18" y1="20" x2="18" y2="10"></line>
-          </svg>
-        </button>
 
-        <button id="lang-toggle" class="icon-btn" type="button" aria-label="Toggle language" data-i18n-title="changeLanguage">
+
+        <button id="lang-toggle" class="icon-btn" type="button" aria-label="Toggle language"
+          data-i18n-title="changeLanguage">
           <span id="lang-toggle-label" class="lang-label">EN</span>
         </button>
 
@@ -73,16 +66,40 @@
           </svg>
         </button>
 
+        <button id="account-toggle" class="icon-btn" type="button" aria-label="User profile" data-i18n-title="account">
+          <svg class="icon-user" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+            <circle cx="12" cy="7" r="4" />
+          </svg>
+        </button>
+
+
       </div>
     </header>
 
     <!-- ══════════════════ LAYOUT ══════════════════ -->
     <div class="app-layout-container">
-
       <div class="sidebar-wrapper open" id="sidebar-wrapper">
-
         <aside class="controls-sidebar">
           <div class="sidebar-scrollable-content">
+            <div class="view-switch-top">
+              <button id="dashboard-toggle" class="icon-btn" type="button" data-i18n-title="dashboard"
+                aria-label="Dashboard">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="6" y1="20" x2="6" y2="14"></line>
+                  <line x1="12" y1="20" x2="12" y2="4"></line>
+                  <line x1="18" y1="20" x2="18" y2="10"></line>
+                </svg>
+              </button>
+              <button id="hint-show-btn" class="sidebar-btn icon-btn" type="button" data-i18n-title="showHint"
+                aria-label="Show help">?</button>
+            </div>
+
+
+
+
             <!-- ─── Voices ─── -->
             <div class="acc-section" data-acc="voices">
               <div class="acc-header">
@@ -97,7 +114,8 @@
                     <option value="female" data-i18n="femaleOnly">Female Only</option>
                     <option value="male" data-i18n="maleOnly">Male Only</option>
                   </select-->
-                  <input type="text" id="voice-search" class="ctrl-input" placeholder="Search voices..." data-i18n-placeholder="searchVoices">
+                  <input type="text" id="voice-search" class="ctrl-input" placeholder="Search voices..."
+                    data-i18n-placeholder="searchVoices">
                   <select id="voice-select" class="ctrl-select">
                     <option>Loading voices...</option>
                   </select>
@@ -108,12 +126,13 @@
             <!-- ─── Footer: timer + metrics ─── -->
             <div class="sidebar-footer">
               <div class="acc-section open" data-acc="controls">
-                <div class="acc-header">
-                  <span data-i18n="controls">Controls</span>
+                <!--div class="acc-header">
+                  <span data-i18n="controls">Reading Controls</span>
                   <span class="acc-chevron">▸</span>
-                </div>
+                </div-->
                 <div class="acc-body">
                   <div class="acc-body-inner">
+
                     <div class="slider-container">
                       <p class="ctrl-label">
                         <span data-i18n="speed">Speed</span>:
@@ -121,62 +140,10 @@
                       </p>
                       <input type="range" id="speed-slider" min="0.25" max="2" step="0.25" value="0.75" class="slider">
                     </div>
-                    <div class="playback-row">
-                      <button id="rewind-btn" class="pb-btn" title="Rewind" aria-label="Rewind">
-                        <svg viewBox="0 0 24 24">
-                          <polygon points="11 6 11 18 3 12" />
-                          <polygon points="21 6 21 18 13 12" />
-                          <line x1="21" y1="6" x2="21" y2="18" />
-                        </svg>
-                      </button>
-                      <button id="stop-btn" class="pb-btn" title="Stop" aria-label="Stop">
-                        <svg viewBox="0 0 24 24">
-                          <rect x="6" y="6" width="12" height="12" rx="2" />
-                        </svg>
-                      </button>
-                      <button id="read-btn" class="pb-btn play-pause" title="Read" aria-label="Read">
-                        <svg class="icon-play" viewBox="0 0 24 24">
-                          <polygon points="8 5 19 12 8 19" />
-                        </svg>
-                        <svg class="icon-pause" viewBox="0 0 24 24">
-                          <rect x="6" y="5" width="4" height="14" rx="1" />
-                          <rect x="14" y="5" width="4" height="14" rx="1" />
-                        </svg>
-                      </button>
-                      <button id="forward-btn" class="pb-btn" title="Forward" aria-label="Forward">
-                        <svg viewBox="0 0 24 24">
-                          <polygon points="3 6 3 18 11 12" />
-                          <polygon points="13 6 13 18 21 12" />
-                          <line x1="3" y1="6" x2="3" y2="18" />
-                        </svg>
-                      </button>
-                      <button id="loop-check" class="pb-btn loop-off" title="Loop" aria-label="Loop">
-                        <svg viewBox="0 0 24 24">
-                          <path d="M17 2l4 4-4 4" />
-                          <path d="M3 11v-1a4 4 0 0 1 4-4h14" />
-                          <path d="M7 22l-4-4 4-4" />
-                          <path d="M21 13v1a4 4 0 0 1-4 4H3" />
-                        </svg>
-                      </button>
-                    </div>
-                    <!--here-->
-                    <div class="nested-timer-box"><label class="timer-label" data-i18n="stopTime">Stop Timer</label>
-                      <div class="ctrl-row">
-                        <div id="timer-display" class="timer-display">00:00.0</div>
-                        <button id="timer-reset-btn" class="ctrl-btn half" data-i18n="resetTimer">Reset</button>
-                      </div>
-                      <div class="metrics-row">
-                        <span><span data-i18n="chars">Chars</span>: <strong id="char-count">0</strong></span>
-                        <span><span data-i18n="est">Est</span>: <strong id="time-estimate">0m 0s</strong></span>
-                      </div>
-                    </div>
                   </div>
                 </div>
               </div>
-
-
             </div>
-
           </div>
         </aside>
 
@@ -190,35 +157,45 @@
             <p data-i18n="onboardingBody">Turn any two-column list into a memory test. Hide a column, quiz yourself, and
               track what you missed.</p>
             <ul class="hint-list">
-              <li data-i18n="onboardingBullet0">First, add data to both columns</li>
+              <li data-i18n="onboardingBullet0">First, add data to both columns.</li>
               <li data-i18n="onboardingBullet1">Click <strong>Hide Col A</strong> or <strong>Hide Col B</strong> to mask
-                a column and self-test</li>
+                a column and self-test.</li>
               <li data-i18n="onboardingBullet2">To test your memory, click Start Test for a graded quiz with
-                multiple-choice, T/F, or fill-in-blank modes</li>
-              <li data-i18n="onboardingBullet3">Use the Lists / Notes toggle to organize multiple decks or keep notes
+                multiple-choice, T/F, or fill-in-blank modes.</li>
+              <li data-i18n="onboardingBullet3">Use the Decks / Notes toggle to organize multiple decks or keep notes.
               </li>
-              <li data-i18n="onboardingBullet4">Press ▶ to hear your list read aloud content in Notes or Lists</li>
-              <li data-i18n="onboardingBullet5">Everything saves automatically to your browser</li>
+              <li data-i18n="onboardingBullet4">Press ▶ to hear your content read aloud Notes or Decks.</li>
+              <li data-i18n="onboardingBullet5">Everything saves automatically to your browser.</li>
             </ul>
           </div>
+
+          
 
           <!-- View toggle + dynamic dropdown + management -->
           <div class="view-switch">
             <div class="view-switch-top">
               <div class="seg-toggle" id="seg-toggle">
-                <button class="seg-btn active" data-mode="lists" type="button" data-i18n="lists">Lists</button>
+                <button class="seg-btn active" data-mode="lists" type="button" data-i18n="decks">Decks</button>
                 <button class="seg-btn" data-mode="notes" type="button" data-i18n="notes">Notes</button>
+                <button id="qbank-open-btn" class="seg-btn" type="button" data-i18n="qbankBtn"
+                  data-i18n-title="questionBank">Deck Banks</button>
               </div>
             </div>
 
+                        <!-- ═══════════════ ANALYTICS WORKSPACE ═══════════════ -->
+            <div id="analytics-workspace"></div>
+
             <div class="view-row">
               <select id="view-select" class="ctrl-select"></select>
+              <div class="vs-dd">
+                <button type="button" id="vs-btn" class="ctrl-select vs-btn"></button>
+                <div id="vs-list" class="vs-list"></div>
+              </div>
               <button id="mgmt-menu-btn" class="mgmt-btn" type="button" aria-label="List actions" aria-haspopup="true"
                 aria-expanded="false" data-i18n-title="moreOptions">⋯</button>
-              <button id="hint-show-btn" class="mgmt-btn" type="button" data-i18n-title="showHint"
-                aria-label="Show help">?</button>
+
               <div class="mgmt-group" id="mgmt-group">
-                <button id="qbank-open-btn" class="mgmt-btn" type="button" data-i18n="qbankBtn">Question Bank</button>
+
                 <button id="mgmt-new-btn" class="mgmt-btn" type="button" data-i18n-title="addList"
                   data-i18n="addList">New</button>
                 <button id="mgmt-rename-btn" class="mgmt-btn" type="button" data-i18n-title="editList"
@@ -266,8 +243,7 @@
             <div id="note-resizer"></div>
           </div>
 
-          <!-- ═══════════════ ANALYTICS WORKSPACE ═══════════════ -->
-          <div id="analytics-workspace"></div>
+
 
           <!-- Exam counter strip -->
           <div class="exam-counter-strip">
@@ -291,6 +267,11 @@
 
     <!-- ══════════════════ MOBILE PLAYBACK BAR ══════════════════ -->
     <div class="mobile-playback-bar">
+      <div class="ctrl-row">
+        <div id="timer-display" class="timer-display timer-section">00:00.0</div>
+        <button id="timer-reset-btn" class="ctrl-btn half timer-section" data-i18n="resetTimer">Reset</button>
+      </div>
+
       <button id="m-rewind-btn" class="pb-btn" title="Rewind" aria-label="Rewind">
         <svg viewBox="0 0 24 24">
           <polygon points="11 6 11 18 3 12" />
@@ -343,6 +324,7 @@
     <!-- Mobile popups -->
 
     <div class="mobile-popup" id="m-menu-popup">
+      <button class="mobile-popup-item" id="m-voices-open-btn" data-i18n="voices">Voices</button>
       <button class="mobile-popup-item" id="m-speed-open-btn" data-i18n="speed">Speed</button>
     </div>
 
@@ -371,6 +353,17 @@
       </div>
     </div>
 
+    <div class="modal-overlay" id="voices-modal">
+      <div class="modal-card">
+        <h3 class="modal-title" data-i18n="voices">Voices</h3>
+        <input type="text" id="vm-search" class="ctrl-input" placeholder="Search voices...">
+        <select id="vm-select" class="ctrl-select"></select>
+        <div class="modal-actions">
+          <button class="modal-btn" id="vm-close" type="button">Close</button>
+        </div>
+      </div>
+    </div>
+
     <input type="file" id="list-import-input" accept=".txt,.csv,.tsv,text/plain" hidden>
 
   </div>
@@ -389,7 +382,6 @@
   <!-- Step 4: grid -->
   <script src="js/grid.js"></script>
   <script src="js/sorting.js"></script>
-  <script src="js/duplicates.js"></script>
 
   <!-- Step 5: modal + lists + notes -->
   <script src="js/modal.js"></script>
@@ -410,7 +402,7 @@
 
   <script>
     if ('serviceWorker' in navigator && location.protocol.indexOf('http') === 0) {
-      window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js'); });
+      window.addEventListener('load', function () {navigator.serviceWorker.register('sw.js');});
     }
   </script>
 

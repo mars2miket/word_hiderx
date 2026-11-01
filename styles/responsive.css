@@ -1,4 +1,79 @@
 /* ==========================================================================
+   SHARED (all screen sizes)
+   ========================================================================== */
+
+
+
+/* Bottom playback bar — horizontal row, always visible */
+.mobile-playback-bar {
+  display: flex !important;
+  flex: 0 0 auto;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-around;
+  width: 100%;
+  height: 56px;
+  padding: 0 8px;
+  background: var(--bg-surface);
+  border-top: 1px solid var(--border-color);
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.06);
+  box-sizing: border-box;
+  gap: 4px;
+  z-index: 30;
+}
+
+.mobile-playback-bar .pb-btn { width: 44px; height: 44px; flex: 0 0 auto; }
+.mobile-playback-bar .pb-btn svg { width: 22px; height: 22px; }
+.mobile-playback-bar .play-pause svg { width: 20px; height: 20px; }
+
+/* Popups opened by #m-menu-btn */
+.mobile-popup {
+  display: none;
+  flex-direction: column;
+  gap: 2px;
+  position: fixed;
+  right: 12px;
+  bottom: 64px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+  padding: 6px;
+  z-index: 40;
+  min-width: 130px;
+}
+
+.mobile-popup.visible { display: flex; }
+
+.mobile-popup-item {
+  padding: 10px 14px;
+  border: none;
+  background: transparent;
+  color: var(--text-primary);
+  text-align: left;
+  font-size: 15px;
+  border-radius: 6px;
+  min-height: 40px;
+  cursor: pointer;
+}
+
+.mobile-popup-item:hover,
+.mobile-popup-item:active { background: var(--accent-soft); }
+
+/* Desktop sidebar popups (#dt-menu-popup, #dt-speed-popup) */
+.mobile-popup.dt-popup {
+  display: none !important;
+  position: absolute;
+  right: 0;
+  top: calc(100% - 78px) !important;
+  bottom: auto !important;
+  max-height: 200px !important;
+  overflow-y: auto !important;
+  z-index: 200;
+  min-width: 100px;
+}
+
+/* ==========================================================================
    WIDE SCREEN (≥701px)
    ========================================================================== */
 @media (min-width: 701px) {
@@ -25,10 +100,9 @@
     margin-bottom: 0;
   }
 
-  .mobile-playback-bar,
-  .mobile-popup {
-    display: none !important;
-  }
+  .playback-row { position: relative; }
+
+  .mobile-popup.dt-popup.visible { display: flex !important; }
 }
 
 /* ==========================================================================
@@ -42,7 +116,7 @@
 
   #analytics-workspace {
     overflow-x: hidden;
-    max-height: 80vh;
+    max-height: 60vh;
   }
 
   .top-sticky-bar {
@@ -132,57 +206,10 @@
     overscroll-behavior: contain;
     touch-action: pan-y;
   }
-  
 
-  .mobile-playback-bar {
-    display: flex !important;
-    flex: 0 0 auto;
-    align-items: center;
-    justify-content: space-around;
-    width: 100%;
-    height: 56px;
-    padding: 0 8px;
-    background: var(--bg-surface);
-    border-top: 1px solid var(--border-color);
-    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.06);
-    box-sizing: border-box;
-    gap: 4px;
-    z-index: 30;
-  }
-
-  .mobile-playback-bar .pb-btn { width: 44px; height: 44px; flex: 0 0 auto; }
-  .mobile-playback-bar .pb-btn svg { width: 22px; height: 22px; }
-  .mobile-playback-bar .play-pause svg { width: 20px; height: 20px; }
-
-  .mobile-popup {
+  .timer-section{
     display: none;
-    flex-direction: column;
-    gap: 2px;
-    position: fixed;
-    right: 12px;
-    bottom: 64px;
-    background: var(--bg-surface);
-    border: 1px solid var(--border-color);
-    border-radius: 10px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
-    padding: 6px;
-    z-index: 40;
-    min-width: 130px;
   }
-
-  .mobile-popup.visible { display: flex; }
-
-  .mobile-popup-item {
-    padding: 10px 14px;
-    border: none;
-    background: transparent;
-    color: var(--text-primary);
-    text-align: left;
-    font-size: 15px;
-    border-radius: 6px;
-    min-height: 40px;
-  }
-
-  .mobile-popup-item:hover,
-  .mobile-popup-item:active { background: var(--accent-soft); }
 }
+
+.acc-section[data-acc="voices"] { display: none; }

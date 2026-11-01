@@ -41,14 +41,15 @@ window.__LOCALES__.en = {
   analyticsTopMissed: "Top 5 Missed Items",
   analyticsEmpty: "No test data found. Complete an exam to see analytics!",
   analyticsPerfect: "Perfect score! No missed items tracked.",
-  dashboard:"Dashboard",
+  dashboard:"Testing Analysis",
+  questionBank:"Create Question Bank",
 
   // Footer
   timer: "Timer",
   resetTimer: "Reset",
   chars: "Chars",
   est: "Est",
-  stopTime:"Stop Timer",
+  stopTime:"Timer",
 
   // Grid columns
   hideColA: "Hide Col A",
@@ -57,11 +58,11 @@ window.__LOCALES__.en = {
   showColB: "Show Col B",
 
   // Buttons
-  newList: "New list",
-  renameList: "Rename list",
-  deleteList: "Delete list",
-  exportList: "Export list",
-  importList: "Import list",
+  newList: "New deck",
+  renameList: "Rename deck",
+  deleteList: "Delete deck",
+  exportList: "Export deck",
+  importList: "Import deck",
   addRow: "+ Add Row",
   clearContent: "Clear Content",
   addList: "New file",
@@ -87,21 +88,22 @@ window.__LOCALES__.en = {
 
   // Onboarding
   onboardingTitle: "Welcome",
-  onboardingBody: "Turn any two-column list into a memory test. Hide a column, quiz yourself, and track what you missed.",
+  onboardingBody: "Turn any two-column list into a memory deck. Hide a column, quiz yourself, and track what you missed.",
   onboardingSampleBadge: "Sample",
   onboardingDismiss: "Dismiss",
   onboardingBullet0: "First, add data to BOTH columns.",
   onboardingBullet1: "Click Hide Col A or Hide Col B to mask a column; click a masked cell(s) to unmask it.",
   onboardingBullet2: "To test your memory, click Start Test for a graded quiz with multiple-choice, T/F, or fill-in-blank modes.",
-  onboardingBullet3: "Use the Lists / Notes toggle to organize multiple decks or keep notes.",
-  onboardingBullet4: "Press ▶ to hear your content read aloud in Notes or Lists.",
+  onboardingBullet3: "Use the Decks / Notes toggle to organize multiple decks or keep notes.",
+  onboardingBullet4: "Press ▶ to hear your content read aloud Notes or Decks.",
   onboardingBullet5: "Everything saves automatically to your browser.",
   showHint: "Show help",
 
-  // Sidebar sections
+  // nav sections
+  decks: "Decks",
   lists: "Lists",
   notes: "Notes",
-  controls: "Controls",
+  controls: "Reading Controls",
   voices: "Voices",
 
   // Spreadsheet headers
@@ -126,16 +128,16 @@ window.__LOCALES__.en = {
   deleteBtn: "Delete",
   clearBtn: "Clear",
   deleteConfirmMsg: 'Delete "{name}"? This cannot be undone.',
-  clearConfirmMsg: "Clear all content from this list? This cannot be undone.",
-  promptNewList: "New list name:",
-  promptRenameList: "Rename list:",
+  clearConfirmMsg: "Clear all content from this deck? This cannot be undone.",
+  promptNewList: "New deck name:",
+  promptRenameList: "Rename deck:",
   promptNewNote: "New note name:",
   promptRenameNote: "Rename note:",
-  errListExists: "A list with that name already exists.",
+  errListExists: "A deck with that name already exists.",
   errNoteExists: "A note with that name already exists.",
   errSelectNote: "Select a note first.",
-  errNeedOneList: "You need at least one list.",
-  errListEmpty: "This list is empty — nothing to export.",
+  errNeedOneList: "You need at least one deck.",
+  errListEmpty: "This deck is empty — nothing to export.",
   errBadFileType: "Only .txt, .tsv, .md and .csv files are allowed.",
   errFileTooLarge: "File too large. Max 500 KB.",
   errFileEmpty: "That file is empty.",
@@ -173,8 +175,8 @@ window.__LOCALES__.en = {
   dupWarning: "Duplicate in this column",
 
   // Question Bank
-  qbankBtn: "Question Bank",
-  qbankTitle: "Question Bank",
+  qbankBtn: "Deck Banks",
+  qbankTitle: "Deck Banks",
   qbankSearch: "Search categories...",
   qbankLeft: "{left} of {total} left",
   qbankHowMany: "Questions",
@@ -182,7 +184,7 @@ window.__LOCALES__.en = {
   qbankAllUsed: "All questions used. Reset to start over.",
   qbankReset: "Reset category",
   qbankResetConfirm: 'Reset "{name}"? Used questions can appear again.',
-  qbankImport: "Create list",
+  qbankImport: "Create deck",
   qbankLoading: "Loading...",
   qbankLoadErr: "Could not load the question bank.",
   qbankNone: "No categories found.",

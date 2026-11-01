@@ -42,13 +42,14 @@ window.__LOCALES__.vi = {
   analyticsEmpty: "Chưa có dữ liệu. Hoàn thành một bài kiểm tra để xem thống kê!",
   analyticsPerfect: "Điểm tuyệt đối! Không có mục nào bị sai.",
   dashboard:"Bảng điều khiển",
+  questionBank: "Tạo ngân hàng câu hỏi",
 
   // Footer
   timer: "Đồng hồ",
   resetTimer: "Đặt lại",
   chars: "Ký tự",
   est: "Ước tính",
-  stopTime:"Dừng bộ đếm",
+  stopTime:"Bộ hẹn giờ",
 
   // Grid columns
   hideColA: "Ẩn cột A",
@@ -93,15 +94,16 @@ window.__LOCALES__.vi = {
   onboardingBullet0: "Trước nhất, thêm dữ liệu vào cả hai cột.",
   onboardingBullet1: "Nhấp vào Ẩn cột A hoặc Ẩn cột B để che một cột và tự kiểm tra.",
   onboardingBullet2: "Nhấp vào Bắt đầu kiểm tra để làm bài kiểm tra có chấm điểm với các chế độ trắc nghiệm, đúng/sai hoặc điền chỗ trống.",
-  onboardingBullet3: "Sử dụng nút chuyển Danh sách / Ghi chú để tổ chức nhiều bộ thẻ hoặc ghi chú.",
-  onboardingBullet4: "Nhấn ▶ để nghe danh sách của bạn được đọc to ở bất kỳ tốc độ nào.",
+  onboardingBullet3: "Sử dụng nút chuyển Bài / Ghi chú để tổ chức nhiều bộ thẻ hoặc ghi chú.",
+  onboardingBullet4: "Nhấn ▶ để nghe đọc to nội dung trên bộ bài hoặc ghi chú.",
   onboardingBullet5: "Mọi thứ tự động lưu vào trình duyệt của bạn.",
   showHint: "Hiện trợ giúp",
 
-  // Sidebar sections
+  // nav sections
+  decks: "Bài",
   lists: "Danh sách",
   notes: "Ghi chú",
-  controls: "Điều khiển",
+  controls: "Tùy chọn đọc",
   voices: "Giọng nói",
 
 

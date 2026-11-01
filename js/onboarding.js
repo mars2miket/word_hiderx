@@ -61,15 +61,13 @@
       btn.addEventListener('click', function () {
         scope.remove();
         window.storage.set('hintDismissed', true);
-        if (showBtn) showBtn.style.display = '';
+        if (showBtn) showBtn.style.display = ''; 
       });
     }
 
     function applyHintVisibility() {
       var dismissed = !!window.storage.get('hintDismissed');
       var existing = document.getElementById('onboarding-hint');
-
-      if (showBtn) showBtn.style.display = dismissed ? '' : 'none';
 
       if (dismissed && existing) {
         existing.remove();
@@ -95,10 +93,18 @@
     // Initial state
     applyHintVisibility();
 
-    // Wire "show again" button (only if present in HTML)
+    // Wire "show again" button as a dynamic visibility toggle
     if (showBtn) {
       showBtn.addEventListener('click', function () {
-        window.storage.set('hintDismissed', false);
+        var existing = document.getElementById('onboarding-hint');
+        
+        if (existing) {
+          // If the card is currently visible, dismiss it on click
+          window.storage.set('hintDismissed', true);
+        } else {
+          // If the card is hidden, show it on click
+          window.storage.set('hintDismissed', false);
+        }
         applyHintVisibility();
       });
     }
