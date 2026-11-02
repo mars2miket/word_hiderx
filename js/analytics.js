@@ -43,7 +43,7 @@ if (bootState.viewMode === 'analytics') {
 
     if (data.totalSessions === 0) {
       container.innerHTML =
-        '<div class="empty-state"><p>' + i18n('analyticsEmpty', 'No test data found. Complete an exam to see analytics!') + '</p></div>';
+        '<div class="empty-state"><p>' + i18n('analyticsEmpty', 'No analytics test data found. Complete an exam to see dashboard!') + '</p></div>';
       return;
     }
 

@@ -52,10 +52,10 @@ window.__LOCALES__.vi = {
   stopTime:"Bộ hẹn giờ",
 
   // Grid columns
-  hideColA: "👁️ cột A",
-  hideColB: "👁️ cột B",
-  showColA: "🙈 cột A",
-  showColB: "🙈 cột B",
+  hideColA: "👁️ Cột A",
+  hideColB: "👁️ Cột B",
+  showColA: "🙈 Cột A",
+  showColB: "🙈 Cột B",
   
   // Buttons
   account: "Tài khoản",
@@ -79,6 +79,7 @@ window.__LOCALES__.vi = {
   renameList: "Đổi tên danh sách",
   rename: "Đổi tên",
   rewind: "Tua lại",
+  sort: "Sắp xếp cột",
   stop: "Dừng lại",
   theme: "Giao diện",
 

@@ -2,7 +2,8 @@
  * nav.js — classic script.
  * -----------------------------------------------------------------------------
  * Wires up:
- *   • Sidebar toggle (hamburger) with localStorage persistence
+ *   • Sidebar toggle (hamburger) with desktop + mobile persistence
+ *   • Playback bar placement (mobile: docked to app shell; desktop: in sidebar)
  *   • Theme toggle (dark/light/cybersecurity)
  *   • Language toggle (EN ↔ VI)
  *   • Accordion sections in the sidebar
@@ -13,10 +14,10 @@
 
   function initNav() {
     initSidebar();
+    initPlaybackBar();
     initTheme();
     initLang();
     initAccordion();
-    document.body.classList.remove('preload');
   }
 
   // ─── Sidebar ─────────────────────────────────────────────────────────────
@@ -29,8 +30,14 @@
 
     function applyOpen() {
       var open = window.getState().sidebarOpen;
-      wrapper.classList.toggle('open', open);
-      wrapper.classList.toggle('collapsed', !open);
+
+      if (mq.matches) {
+        wrapper.classList.toggle('collapsed', !open);
+        wrapper.classList.toggle('open', open);
+      } else {
+        wrapper.classList.toggle('open', open);
+        wrapper.classList.toggle('collapsed', !open);
+      }
 
       var title = open ? 'Close sidebar' : 'Open sidebar';
       tab.title = title;
@@ -46,17 +53,13 @@
       }
     }
 
-    // Default configuration boot check
     setDefault();
 
-    // React to resize
     var lastMatch = mq.matches;
     mq.addEventListener('change', function (e) {
       if (e.matches === lastMatch) return;
       lastMatch = e.matches;
-      if (localStorage.getItem('sidebarOpen') === null) {
-        setDefault();
-      }
+      applyOpen();
     });
 
     tab.addEventListener('click', function () {
@@ -65,12 +68,40 @@
       localStorage.setItem('sidebarOpen', String(nextState));
     });
 
-    // Re-render whenever sidebarOpen changes
     window.subscribe(function (state, prev) {
       if (state.sidebarOpen !== prev.sidebarOpen) applyOpen();
     });
 
     applyOpen();
+  }
+
+  // ─── Playback bar placement ──────────────────────────────────────────────
+    function initPlaybackBar() {
+    var bar = document.querySelector('.mobile-playback-bar');
+    var sidebar = document.querySelector('.controls-sidebar');
+    var shell = document.querySelector('.app-shell');
+    var menuPopup = document.getElementById('m-menu-popup');
+    var speedPopup = document.getElementById('m-speed-popup');
+    
+    if (!bar || !sidebar || !shell) return;
+
+    var mq = window.matchMedia('(max-width: 700px)');
+
+    function place() {
+      if (mq.matches) {
+        if (bar.parentNode !== shell) shell.appendChild(bar);
+        // Move popups INSIDE the bar so they anchor to it
+        if (menuPopup && menuPopup.parentNode !== bar) bar.appendChild(menuPopup);
+        if (speedPopup && speedPopup.parentNode !== bar) bar.appendChild(speedPopup);
+      } else {
+        if (bar.parentNode !== sidebar) sidebar.appendChild(bar);
+        if (menuPopup && menuPopup.parentNode !== bar) bar.appendChild(menuPopup);
+        if (speedPopup && speedPopup.parentNode !== bar) bar.appendChild(speedPopup);
+      }
+    }
+
+    place();
+    mq.addEventListener('change', place);
   }
 
   // ─── Theme ───────────────────────────────────────────────────────────────
@@ -83,12 +114,12 @@
     btn.addEventListener('click', function () {
       var current = window.getState().theme || 'dark';
       var currentIndex = themes.indexOf(current);
-      
+
       if (currentIndex === -1) currentIndex = 0;
 
       var nextIndex = (currentIndex + 1) % themes.length;
       var next = themes[nextIndex];
-      
+
       window.setState({ theme: next });
     });
 

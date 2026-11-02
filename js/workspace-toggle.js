@@ -232,6 +232,7 @@
     var mode = state.viewMode || 'lists';
 
     // Set the view mode on the body element so CSS rules can hide/show containers
+    document.documentElement.setAttribute('data-view-mode', mode);
     document.body.setAttribute('data-view-mode', mode);
 
     // Toggle active state on the segmented layout buttons

@@ -14,12 +14,19 @@
   <link rel="stylesheet" href="styles/components.css">
   <link rel="stylesheet" href="styles/responsive.css">
   <link rel="stylesheet" href="styles/qbank.css">
-  <style>
-    /* Add this rule to your stylesheet to kill transitions on boot */
-    .preload * {
-      transition: none !important;
-    }
-  </style>
+
+  <script>
+    // 1. Immediately inject the preload class to block visual layout transitions on start
+    document.documentElement.classList.add('preload');
+
+    // 2. Synchronously pull saved configuration from localStorage to prevent standard theme flash
+    const savedTheme = localStorage.getItem('vault-recall-theme') || 'light';
+    const savedView = localStorage.getItem('vault-recall-view') || 'lists';
+
+    // 3. Bind properties instantly before the stylesheet renders the layout
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    document.documentElement.setAttribute('data-view-mode', savedView);
+  </script>
 
 </head>
 
@@ -43,7 +50,8 @@
     <header class="top-sticky-bar">
       <div class="brand">
 
-        <button id="sidebar-toggle" class="icon-btn" type="button" data-i18n-title="openSideBar" aria-label="Toggle sidebar">
+        <button id="sidebar-toggle" class="icon-btn" type="button" data-i18n-title="openSideBar"
+          aria-label="Toggle sidebar">
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"
             stroke-linecap="round" stroke-linejoin="round">
             <line x1="3" y1="6" x2="21" y2="6"></line>
@@ -70,7 +78,6 @@
             <path
               d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
           </svg>
-          <!-- NEW THIRD SVG ICON -->
           <svg class="icon-cyber" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
@@ -92,19 +99,19 @@
         <aside class="controls-sidebar">
           <div class="sidebar-scrollable-content">
             <div class="view-switch-top">
-              
-                <button id="dashboard-toggle" class="icon-btn" type="button" data-i18n-title="dashboard"
-                  aria-label="Dashboard">
-                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"
-                    stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="6" y1="20" x2="6" y2="14"></line>
-                    <line x1="12" y1="20" x2="12" y2="4"></line>
-                    <line x1="18" y1="20" x2="18" y2="10"></line>
-                  </svg>
-                </button>
-                <button id="hint-show-btn" class="sidebar-btn icon-btn" type="button" data-i18n-title="showHint"
-                  aria-label="Show help">?</button>
-              
+
+              <button id="dashboard-toggle" class="icon-btn" type="button" data-i18n-title="dashboard"
+                aria-label="Dashboard">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="6" y1="20" x2="6" y2="14"></line>
+                  <line x1="12" y1="20" x2="12" y2="4"></line>
+                  <line x1="18" y1="20" x2="18" y2="10"></line>
+                </svg>
+              </button>
+              <button id="hint-show-btn" class="sidebar-btn icon-btn" type="button" data-i18n-title="showHint"
+                aria-label="Show help">?</button>
+
             </div>
 
             <!-- ─── Voices ─── -->
@@ -116,11 +123,6 @@
 
               <div class="acc-body">
                 <div class="acc-body-inner">
-                  <!--select id="gender-filter" class="ctrl-select">
-                    <option value="all" data-i18n="allGenders">All Genders</option>
-                    <option value="female" data-i18n="femaleOnly">Female Only</option>
-                    <option value="male" data-i18n="maleOnly">Male Only</option>
-                  </select-->
                   <input type="text" id="voice-search" class="ctrl-input" placeholder="Search voices..."
                     data-i18n-placeholder="searchVoices">
                   <select id="voice-select" class="ctrl-select">
@@ -149,6 +151,58 @@
               </div>
             </div>
           </div>
+
+          <!-- ══════════════════ MOBILE PLAYBACK BAR ══════════════════ -->
+          <div class="mobile-playback-bar">
+            <button id="m-rewind-btn" class="pb-btn" data-i18n-title="rewind" aria-label="Rewind">
+              <svg viewBox="0 0 24 24">
+                <polygon points="11 6 11 18 3 12" />
+                <polygon points="21 6 21 18 13 12" />
+                <line x1="21" y1="6" x2="21" y2="18" />
+              </svg>
+            </button>
+
+            <button id="m-stop-btn" class="pb-btn" data-i18n-title="stop" aria-label="Stop">
+              <svg viewBox="0 0 24 24">
+                <rect x="6" y="6" width="12" height="12" rx="2" />
+              </svg>
+            </button>
+
+            <button id="m-read-btn" class="pb-btn play-pause" data-i18n-title="read" aria-label="Read">
+              <svg class="icon-play" viewBox="0 0 24 24">
+                <polygon points="8 5 19 12 8 19" />
+              </svg>
+              <svg class="icon-pause" viewBox="0 0 24 24">
+                <rect x="6" y="5" width="4" height="14" rx="1" />
+                <rect x="14" y="5" width="4" height="14" rx="1" />
+              </svg>
+            </button>
+
+            <button id="m-forward-btn" class="pb-btn" data-i18n-title="forward" aria-label="Forward">
+              <svg viewBox="0 0 24 24">
+                <polygon points="3 6 3 18 11 12" />
+                <polygon points="13 6 13 18 21 12" />
+                <line x1="3" y1="6" x2="3" y2="18" />
+              </svg>
+            </button>
+
+            <button id="m-loop-check" class="pb-btn loop-off" data-i18n-title="loop" aria-label="Loop">
+              <svg viewBox="0 0 24 24">
+                <path d="M17 2l4 4-4 4" />
+                <path d="M3 11v-1a4 4 0 0 1 4-4h14" />
+                <path d="M7 22l-4-4 4-4" />
+                <path d="M21 13v1a4 4 0 0 1-4 4H3" />
+              </svg>
+            </button>
+
+            <button id="m-menu-btn" class="pb-btn" data-i18n-title="playBackMenu" aria-label="Menu">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"
+                stroke-linejoin="round">
+                <path d="M3 6h18M3 12h18M3 18h18" />
+              </svg>
+            </button>
+          </div>
+
         </aside>
 
         <!-- ══════════════════ MAIN WORKSPACE ══════════════════ -->
@@ -202,8 +256,6 @@
 
                 <button id="mgmt-new-btn" class="mgmt-btn" type="button" data-i18n-title="addList"
                   data-i18n="addList">New</button>
-                <button id="mgmt-rename-btn" class="mgmt-btn" type="button" data-i18n-title="editList"
-                  data-i18n="rename">Rename</button>
                 <button id="list-export-btn" class="mgmt-btn" type="button" data-i18n-title="expList"
                   data-i18n="expList">Exp</button>
                 <button id="list-import-btn" class="mgmt-btn" type="button" data-i18n-title="impList"
@@ -221,7 +273,7 @@
               <div class="cell header-cell" data-col="A">
                 <div class="header-split-wrapper">
                   <span class="header-label" data-col="A" data-i18n="hideColA">Hide Col A</span>
-                  <button class="header-sort-btn" title="Sort">⇅</button>
+                  <button class="header-sort-btn" data-i18n-title="sort">⇅</button>
                 </div>
                 <div class="resizer"></div>
               </div>
@@ -267,57 +319,6 @@
 
         </main>
       </div>
-    </div>
-
-    <!-- ══════════════════ MOBILE PLAYBACK BAR ══════════════════ -->
-    <div class="mobile-playback-bar">
-      <button id="m-rewind-btn" class="pb-btn" data-i18n-title="rewind" aria-label="Rewind">
-        <svg viewBox="0 0 24 24">
-          <polygon points="11 6 11 18 3 12" />
-          <polygon points="21 6 21 18 13 12" />
-          <line x1="21" y1="6" x2="21" y2="18" />
-        </svg>
-      </button>
-
-      <button id="m-stop-btn" class="pb-btn" data-i18n-title="stop" aria-label="Stop">
-        <svg viewBox="0 0 24 24">
-          <rect x="6" y="6" width="12" height="12" rx="2" />
-        </svg>
-      </button>
-
-      <button id="m-read-btn" class="pb-btn play-pause" data-i18n-title="read" aria-label="Read">
-        <svg class="icon-play" viewBox="0 0 24 24">
-          <polygon points="8 5 19 12 8 19" />
-        </svg>
-        <svg class="icon-pause" viewBox="0 0 24 24">
-          <rect x="6" y="5" width="4" height="14" rx="1" />
-          <rect x="14" y="5" width="4" height="14" rx="1" />
-        </svg>
-      </button>
-
-      <button id="m-forward-btn" class="pb-btn" data-i18n-title="forward" aria-label="Forward">
-        <svg viewBox="0 0 24 24">
-          <polygon points="3 6 3 18 11 12" />
-          <polygon points="13 6 13 18 21 12" />
-          <line x1="3" y1="6" x2="3" y2="18" />
-        </svg>
-      </button>
-
-      <button id="m-loop-check" class="pb-btn loop-off" data-i18n-title="loop" aria-label="Loop">
-        <svg viewBox="0 0 24 24">
-          <path d="M17 2l4 4-4 4" />
-          <path d="M3 11v-1a4 4 0 0 1 4-4h14" />
-          <path d="M7 22l-4-4 4-4" />
-          <path d="M21 13v1a4 4 0 0 1-4 4H3" />
-        </svg>
-      </button>
-
-      <button id="m-menu-btn" class="pb-btn" data-i18n-title="playBackMenu" aria-label="Menu">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"
-          stroke-linejoin="round">
-          <path d="M3 6h18M3 12h18M3 18h18" />
-        </svg>
-      </button>
     </div>
 
     <!-- Mobile popups -->

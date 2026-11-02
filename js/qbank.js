@@ -1,8 +1,7 @@
 /**
  * qbank.js — classic script.
- * Question Bank picker: loads Q_Bank.csv (Category,Q,A,W1,W2,W3), lets the user pick a
- * category + a question count, and imports random UNUSED questions as a new list.
- * Used questions are tracked by a hash of the question text (not by category).
+ * Question Bank picker: loads Q_Bank.csv, lets the user pick a category + count,
+ * imports random UNUSED questions as a new list. Modal open/close persists.
  */
 (function () {
   'use strict';
@@ -11,9 +10,10 @@
   var DEFAULT_COUNT = 20;
   var USED_KEY = 'qbankUsed';
   var SEQ_KEY = 'qbankSeq';
-  var WRONG_KEY = 'qbankWrong';   // { questionHash: [wrong options] }
+  var WRONG_KEY = 'qbankWrong';
+  var OPEN_KEY = 'qbankOpen';
 
-  var data = null;            // { category: [{ q, a, id }] }
+  var data = null;
   var selected = null;
   var overlay, searchEl, listEl, statusEl, countEl, hintEl, resetBtn, importBtn, titleEl, cancelBtn, countLabel;
 
@@ -23,7 +23,7 @@
   }
 
   // ─── Helpers ─────────────────────────────────────────────────────────────
-  function hash(str) {                       // cyrb53
+  function hash(str) {
     var h1 = 0xdeadbeef, h2 = 0x41c6ce57;
     for (var i = 0, ch; i < str.length; i++) {
       ch = str.charCodeAt(i);
@@ -220,6 +220,7 @@
 
   // ─── Open / close ────────────────────────────────────────────────────────
   function open() {
+    window.storage.set(OPEN_KEY, true);
     if (!overlay) buildDom();
     applyLabels();
     selected = null;
@@ -228,7 +229,6 @@
     listEl.innerHTML = '';
     statusEl.textContent = t('qbankLoading', 'Loading...');
     updateControls();
-    statusEl.textContent = t('qbankLoading', 'Loading...');
     overlay.classList.add('visible');
 
     fetch(CSV_URL, { cache: 'no-cache' })
@@ -244,6 +244,7 @@
   }
 
   function close() {
+    window.storage.set(OPEN_KEY, false);
     if (overlay) overlay.classList.remove('visible');
   }
 
@@ -313,9 +314,11 @@
   function initQbank() {
     var btn = document.getElementById('qbank-open-btn');
     if (btn) btn.addEventListener('click', open);
+
+    // Restore modal state across reloads
+    if (window.storage.get(OPEN_KEY, false)) open();
   }
 
-  // Curated wrong options for a prompt (or null). Used by exam.js.
   window.qbankWrongFor = function (prompt) {
     var map = window.storage.get(WRONG_KEY, {}) || {};
     var w = map[hash(String(prompt || '').replace(/\s+/g, ' ').trim().toLowerCase())];

@@ -39,7 +39,7 @@ window.__LOCALES__.en = {
   analyticsTotalTests: "Total Tests",
   analyticsAvgAccuracy: "Average Accuracy",
   analyticsTopMissed: "Top 5 Missed Items",
-  analyticsEmpty: "No test data found. Complete an exam to see analytics!",
+  analyticsEmpty: "No analytics test data found. Complete an exam to see dashboard!",
   analyticsPerfect: "Perfect score! No missed items tracked.",
   dashboard:"Testing Analysis",
   questionBank:"Create Question Bank",
@@ -79,6 +79,7 @@ window.__LOCALES__.en = {
   renameList: "Rename deck",
   rename: "Rename file",
   rewind: "Rewind",
+  sort: "Sort",
   stop: "Stop",
   theme: "Theme",  
 
