@@ -52,10 +52,10 @@ window.__LOCALES__.vi = {
   stopTime:"Bộ hẹn giờ",
 
   // Grid columns
-  hideColA: "Ẩn cột A",
-  hideColB: "Ẩn cột B",
-  showColA: "Hiện cột A",
-  showColB: "Hiện cột B",
+  hideColA: "👁️ cột A",
+  hideColB: "👁️ cột B",
+  showColA: "🙈 cột A",
+  showColB: "🙈 cột B",
   
   // Buttons
   newList: "Danh sách mới",

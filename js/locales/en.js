@@ -52,10 +52,10 @@ window.__LOCALES__.en = {
   stopTime:"Timer",
 
   // Grid columns
-  hideColA: "Hide Col A",
-  hideColB: "Hide Col B",
-  showColA: "Show Col A",
-  showColB: "Show Col B",
+  hideColA: "👁️ Col A",
+  hideColB: "👁️ Col B",
+  showColA: "🙈 Col A",
+  showColB: "🙈 Col B",
 
   // Buttons
   newList: "New deck",
@@ -175,8 +175,8 @@ window.__LOCALES__.en = {
   dupWarning: "Duplicate in this column",
 
   // Question Bank
-  qbankBtn: "Deck Banks",
-  qbankTitle: "Deck Banks",
+  qbankBtn: "Q Bank",
+  qbankTitle: "Question Bank",
   qbankSearch: "Search categories...",
   qbankLeft: "{left} of {total} left",
   qbankHowMany: "Questions",

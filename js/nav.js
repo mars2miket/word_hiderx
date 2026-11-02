@@ -2,8 +2,8 @@
  * nav.js — classic script.
  * -----------------------------------------------------------------------------
  * Wires up:
- *   • Sidebar toggle (hamburger)
- *   • Theme toggle (dark/light)
+ *   • Sidebar toggle (hamburger) with localStorage persistence
+ *   • Theme toggle (dark/light/cybersecurity)
  *   • Language toggle (EN ↔ VI)
  *   • Accordion sections in the sidebar
  * -----------------------------------------------------------------------------
@@ -16,6 +16,7 @@
     initTheme();
     initLang();
     initAccordion();
+    document.body.classList.remove('preload');
   }
 
   // ─── Sidebar ─────────────────────────────────────────────────────────────
@@ -37,10 +38,15 @@
     }
 
     function setDefault() {
-      window.setState({ sidebarOpen: !mq.matches });
+      var savedState = localStorage.getItem('sidebarOpen');
+      if (savedState !== null) {
+        window.setState({ sidebarOpen: savedState === 'true' });
+      } else {
+        window.setState({ sidebarOpen: !mq.matches });
+      }
     }
 
-    // Default open on desktop, closed on mobile
+    // Default configuration boot check
     setDefault();
 
     // React to resize
@@ -48,11 +54,15 @@
     mq.addEventListener('change', function (e) {
       if (e.matches === lastMatch) return;
       lastMatch = e.matches;
-      setDefault();
+      if (localStorage.getItem('sidebarOpen') === null) {
+        setDefault();
+      }
     });
 
     tab.addEventListener('click', function () {
-      window.setState({ sidebarOpen: !window.getState().sidebarOpen });
+      var nextState = !window.getState().sidebarOpen;
+      window.setState({ sidebarOpen: nextState });
+      localStorage.setItem('sidebarOpen', String(nextState));
     });
 
     // Re-render whenever sidebarOpen changes
@@ -68,10 +78,17 @@
     var btn = document.getElementById('theme-toggle');
     if (!btn) return;
 
-    // Theme already applied to <html> by main.js during hydrate
+    var themes = ['dark', 'light', 'cybersecurity'];
+
     btn.addEventListener('click', function () {
-      var next = window.getState().theme === 'dark' ? 'light' : 'dark';
-      document.documentElement.setAttribute('data-theme', next);
+      var current = window.getState().theme || 'dark';
+      var currentIndex = themes.indexOf(current);
+      
+      if (currentIndex === -1) currentIndex = 0;
+
+      var nextIndex = (currentIndex + 1) % themes.length;
+      var next = themes[nextIndex];
+      
       window.setState({ theme: next });
     });
 
@@ -90,7 +107,6 @@
 
     var codes = window.__i18n__.codes;
 
-    // Apply current language on boot
     var current = window.getState().lang || codes[0];
     window.__i18n__.apply(current);
 

@@ -41,6 +41,8 @@
   // ─── 2. Hydrate state from storage ──────────────────────────────────────
   function hydrate() {
     var theme        = storage.get('theme', 'dark');
+if (['dark', 'light', 'cybersecurity'].indexOf(theme) === -1) theme = 'dark';
+
     var lang         = storage.get('lang', 'en');
     var rows         = storage.get('rows', []);
     var lists        = storage.get('lists', {});

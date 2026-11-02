@@ -148,6 +148,7 @@
     height: 0;
     border-bottom-width: 0;
   }
+  
 
   .sidebar-scrollable-content {
     width: 100%;
@@ -207,9 +208,11 @@
     touch-action: pan-y;
   }
 
-  .timer-section{
-    display: none;
-  }
 }
 
 .acc-section[data-acc="voices"] { display: none; }
+
+/* Add this rule to your stylesheet to kill transitions on boot */
+.preload * {
+  transition: none !important;
+}

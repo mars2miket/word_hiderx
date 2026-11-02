@@ -6,7 +6,6 @@
  *   • Play / pause / stop / rewind / forward
  *   • Loop toggle
  *   • Speed slider (desktop) + speed popup (mobile)
- *   • Chrono timer
  *   • Chunked speech with watchdog + keep-alive (Android-proof)
  *   • Mobile playback bar (shares the same handler as desktop)
  * -----------------------------------------------------------------------------
@@ -22,7 +21,6 @@
   var synth, readBtn, stopBtn, rewindBtn, forwardBtn, loopCheck;
   var mobileReadBtn, mobileStopBtn, mobileRewindBtn, mobileForwardBtn, mobileLoopCheck;
   var speedSlider, speedValue, genderFilter, voiceSearch, voiceSelect;
-  var timerDisplay, timerResetBtn;
   var menuBtn, menuPopup, speedOpenBtn, speedPopup;
   // NEW: desktop popup refs
   var dtMenuBtn, dtMenuPopup, dtSpeedOpenBtn, dtSpeedPopup;
@@ -37,9 +35,6 @@
   var isChunkTransitionCancelled = false;
   var chunkWatchdog = null;
   var keepAliveTimer = null;
-  var sessionTimerInterval = null;
-  var sessionStartMs = 0;
-  var elapsedMs = 0;
 
   var femaleKeywords = [
     'adri','amala','andrea','anna','aria','asilia','ava','belkys','catalina',
@@ -68,8 +63,6 @@
     genderFilter       = document.getElementById('gender-filter');
     voiceSearch        = document.getElementById('voice-search');
     voiceSelect        = document.getElementById('voice-select');
-    timerDisplay       = document.getElementById('timer-display');
-    timerResetBtn      = document.getElementById('timer-reset-btn');
     menuBtn            = document.getElementById('m-menu-btn');
     menuPopup          = document.getElementById('m-menu-popup');
     speedOpenBtn       = document.getElementById('m-speed-open-btn');
@@ -122,16 +115,6 @@
       });
     }
     if (voiceSelect) voiceSelect.addEventListener('change', onVoiceSelectChange);
-
-    // ─── Timer ───
-    if (timerResetBtn) {
-      timerResetBtn.addEventListener('click', function () {
-        stopTimer();
-        elapsedMs = 0;
-        window.setState({ timerElapsedMs: 0, timerRunning: false });
-        if (timerDisplay) timerDisplay.textContent = '00:00.0';
-      });
-    }
 
     // ─── Mobile popups ───
     initMobilePopups();
@@ -234,6 +217,7 @@
     });
   }
 
+  // ─── Loop ────────────────────────────────────────────────────────────────
   function setLoopVisual(enabled) {
     var targets = [loopCheck, mobileLoopCheck].filter(Boolean);
     targets.forEach(function (btn) {
@@ -259,418 +243,342 @@
 
     if (st.isSpeaking && !st.isPaused) {
       // ─── PAUSE ───
-      stopTimer();
       isChunkTransitionCancelled = true;
       disarmWatchdog();
       stopKeepAlive();
       try { synth.cancel(); } catch (e) {}
       setTimeout(function () { try { synth.cancel(); } catch (e) {} }, 0);
-      setTimeout(function () {
-        try { synth.cancel(); } catch (e) {}
-        isChunkTransitionCancelled = false;
-      }, 120);
-      window.setState({ isSpeaking: false, isPaused: true });
-      setPlayButtonState('paused');
-    } else if (st.isPaused) {
-      // ─── RESUME ───
-      window.setState({ isPaused: false, isSpeaking: true });
-      setPlayButtonState('playing');
-      var text = getReadableText();
-      var remaining = text.substring(st.lastIndex || 0);
-      if (remaining.trim() !== '') speakText(remaining, true);
-    } else {
-      // ─── FRESH START ───
-      speakText();
-    }
-  }
-
-  function getReadableText() {
-    var st = window.getState();
-    if (st.viewMode === 'notes') {
-      var noteArea = document.getElementById('note-area');
-      return noteArea ? noteArea.value.replace(/\t/g, ' ').replace(/\n/g, ' ') : '';
-    }
-    var rows = st.rows || [];
-    var parts = [];
-    rows.forEach(function (r) {
-      if (r.a) parts.push(r.a);
-      if (r.b) parts.push(r.b);
-    });
-    return parts.join(' ').replace(/\t/g, ' ').replace(/\n/g, ' ');
-  }
-
-  // ─── Speak ───────────────────────────────────────────────────────────────
-  function speakText(textOverride, isMidSentenceResume) {
-    if (!isMidSentenceResume && !textOverride) {
-      if (window.getState().isSpeaking) {
-        isChunkTransitionCancelled = true;
-        try { synth.cancel(); } catch (e) {}
-        isChunkTransitionCancelled = false;
-      }
-      window.setState({ lastIndex: 0, isPaused: false });
-    }
-
-    var textToRead = textOverride || getReadableText();
-    if (!textToRead.trim()) return;
-
-    window.setState({ isSpeaking: true });
-    setPlayButtonState('playing');
-
-    var utteranceBaseIndex = isMidSentenceResume ? (window.getState().lastIndex || 0) : 0;
-    speechChunks = splitIntoChunks(textToRead, CHUNK_CHAR_LIMIT);
-    currentChunkIndex = 0;
-    chunkBaseIndex = utteranceBaseIndex;
-
-    startTimer();
-    startKeepAlive();
-    playCurrentChunk();
-  }
-
-  function playCurrentChunk() {
-    var chunkText = speechChunks[currentChunkIndex];
-    var thisChunkBaseIndex = chunkBaseIndex;
-    window.setState({ lastIndex: thisChunkBaseIndex });
-
-    currentUtterance = new SpeechSynthesisUtterance(chunkText);
-
-    var filtered = window.getState().filteredVoices || [];
-    var selIdx = voiceSelect ? parseInt(voiceSelect.value, 10) : 0;
-    if (filtered[selIdx]) currentUtterance.voice = filtered[selIdx];
-    currentUtterance.rate = window.getState().speed || 0.75;
-
-    currentUtterance.onboundary = function (e) {
-      if (e.name === 'word') {
-        window.setState({ lastIndex: thisChunkBaseIndex + e.charIndex });
-      }
-    };
-
-    currentUtterance.onerror = function (e) {
-      if (e.error === 'interrupted' || e.error === 'canceled') {
-        isChunkTransitionCancelled = false;
-        return;
-      }
-      console.warn('[speech] utterance error:', e.error);
-      disarmWatchdog();
-      currentChunkIndex++;
-      chunkBaseIndex = thisChunkBaseIndex + chunkText.length;
-      if (currentChunkIndex < speechChunks.length) playCurrentChunk();
-      else finishReading();
-    };
-
-    currentUtterance.onend = function () {
-      disarmWatchdog();
-      if (isChunkTransitionCancelled) { isChunkTransitionCancelled = false; return; }
-      currentChunkIndex++;
-      chunkBaseIndex = thisChunkBaseIndex + chunkText.length;
-      if (currentChunkIndex < speechChunks.length) {
-        playCurrentChunk();
-      } else {
-        if (window.getState().isLooping) {
-          window.setState({ lastIndex: 0 });
-          speakText();
-        } else {
-          finishReading();
-        }
-      }
-    };
-
-    armWatchdog(chunkText);
-    synth.speak(currentUtterance);
-  }
-
-  function finishReading() {
-    disarmWatchdog();
-    stopKeepAlive();
-    stopTimer();
-    window.setState({ lastIndex: 0, isPaused: false, isSpeaking: false });
-    setPlayButtonState('idle');
-  }
-
-  // ─── Chunking ────────────────────────────────────────────────────────────
-  function splitIntoChunks(text, maxLen) {
-    var chunks = [];
-    var start = 0;
-    while (start < text.length) {
-      if (text.length - start <= maxLen) {
-        chunks.push(text.slice(start));
-        break;
-      }
-      var searchEnd = start + maxLen;
-      var splitAt = -1;
-      for (var i = searchEnd; i > start; i--) {
-        if (/[.!?]/.test(text[i - 1])) { splitAt = i; break; }
-      }
-      if (splitAt === -1) {
-        for (var j = searchEnd; j > start; j--) {
-          if (/\s/.test(text[j])) { splitAt = j + 1; break; }
-        }
-      }
-      if (splitAt === -1 || splitAt <= start) splitAt = searchEnd;
-      chunks.push(text.slice(start, splitAt));
-      start = splitAt;
-    }
-    return chunks;
-  }
-
-  // ─── Watchdog + Keep-alive ───────────────────────────────────────────────
-  function armWatchdog(chunkText) {
-    clearTimeout(chunkWatchdog);
-    var rate = window.getState().speed || 1;
-    var estMs = Math.max(5000, (chunkText.length / 14) * (1000 / rate) + 4000);
-    chunkWatchdog = setTimeout(function () {
-      if (isChunkTransitionCancelled) return;
-      console.warn('[speech] watchdog fired — forcing next chunk');
-      try { synth.cancel(); } catch (e) {}
-      setTimeout(function () {
-        if (isChunkTransitionCancelled) return;
-        currentChunkIndex++;
-        chunkBaseIndex += chunkText.length;
-        if (currentChunkIndex < speechChunks.length) playCurrentChunk();
-        else finishReading();
-      }, 60);
-    }, estMs);
-  }
-
-  function disarmWatchdog() {
-    clearTimeout(chunkWatchdog);
-    chunkWatchdog = null;
-  }
-
-  function startKeepAlive() {
-    stopKeepAlive();
-    keepAliveTimer = setInterval(function () {
-      var st = window.getState();
-      if (st.isSpeaking && !st.isPaused) {
-        try { synth.pause(); synth.resume(); } catch (e) {}
-      }
-    }, 10000);
-  }
-
-  function stopKeepAlive() {
-    clearInterval(keepAliveTimer);
-    keepAliveTimer = null;
-  }
-
-  // ─── Stop ────────────────────────────────────────────────────────────────
-  function handleStop() {
-    window.setState({ isLooping: false });
-    setLoopVisual(false);
-
-    isChunkTransitionCancelled = true;
-    try { synth.cancel(); } catch (e) {}
-    setTimeout(function () { try { synth.cancel(); } catch (e) {} }, 0);
-    setTimeout(function () {
-      try { synth.cancel(); } catch (e) {}
-      isChunkTransitionCancelled = false;
-    }, 200);
-
-    disarmWatchdog();
-    stopKeepAlive();
-    stopTimer();
-    window.setState({ isPaused: false, isSpeaking: false, lastIndex: 0 });
-    currentUtterance = null;
-    setPlayButtonState('idle');
-  }
-
-  // ─── Loop ────────────────────────────────────────────────────────────────
-  function handleLoopClick() {
-    var next = !window.getState().isLooping;
-    window.setState({ isLooping: next });
-    setLoopVisual(next);
-  }
-
-  // ─── Seek ────────────────────────────────────────────────────────────────
-  function seekBy(wordDelta) {
-    var st = window.getState();
-    var wasActive = st.isSpeaking && !st.isPaused;
-    var txt = getReadableText();
-    var idx = st.lastIndex || 0;
-
-    if (wordDelta > 0) {
-      for (var i = 0; i < wordDelta; i++) {
-        while (idx < txt.length && !/\s/.test(txt[idx])) idx++;
-        while (idx < txt.length && /\s/.test(txt[idx])) idx++;
-      }
-    } else {
-      for (var j = 0; j < -wordDelta; j++) {
-        while (idx > 0 && /\s/.test(txt[idx - 1])) idx--;
-        while (idx > 0 && !/\s/.test(txt[idx - 1])) idx--;
-      }
-    }
-    idx = Math.max(0, Math.min(idx, txt.length));
-    window.setState({ lastIndex: idx });
-
-    if (wasActive) {
-      stopTimer();
-      isChunkTransitionCancelled = true;
-      disarmWatchdog();
-      stopKeepAlive();
-      try { synth.cancel(); } catch (e) {}
-      isChunkTransitionCancelled = false;
-      var remaining = txt.substring(idx);
-      if (remaining.trim() !== '') speakText(remaining, true);
-      else finishReading();
-    }
-  }
-
-  // ─── Speed ───────────────────────────────────────────────────────────────
-  function onSpeedChange() {
-    var v = parseFloat(speedSlider.value);
-    speedValue.textContent = v + 'x';
-    window.setState({ speed: v });
-
-    var st = window.getState();
-    if (st.isSpeaking && !st.isPaused) {
-      stopTimer();
-      isChunkTransitionCancelled = true;
-      disarmWatchdog();
-      stopKeepAlive();
-      try { synth.cancel(); } catch (e) {}
-      isChunkTransitionCancelled = false;
-      var remaining = getReadableText().substring(st.lastIndex || 0);
-      if (remaining.trim() !== '') speakText(remaining, true);
-    }
-  }
-
-  // ─── Timer ───────────────────────────────────────────────────────────────
-  function startTimer() {
-    stopTimer();
-    sessionStartMs = Date.now() - elapsedMs;
-    sessionTimerInterval = setInterval(function () {
-      elapsedMs = Date.now() - sessionStartMs;
-      var totalS = Math.floor(elapsedMs / 1000);
-      var m = String(Math.floor(totalS / 60)).padStart(2, '0');
-      var s = String(totalS % 60).padStart(2, '0');
-      var t = Math.floor((elapsedMs % 1000) / 100);
-      if (timerDisplay) timerDisplay.textContent = m + ':' + s + '.' + t;
-    }, 100);
-    window.setState({ timerRunning: true });
-  }
-
-  function stopTimer() {
-    clearInterval(sessionTimerInterval);
-    sessionTimerInterval = null;
-    window.setState({ timerRunning: false, timerElapsedMs: elapsedMs });
-  }
-
-  // ─── Mobile popups ───────────────────────────────────────────────────────
-  function initMobilePopups() {
-    if (!menuBtn || !menuPopup || !speedOpenBtn || !speedPopup) return;
-
-    function closeAll() {
-      menuPopup.classList.remove('visible');
-      speedPopup.classList.remove('visible');
-    }
-
-    menuBtn.addEventListener('click', function (e) {
-      e.stopPropagation();
-      var wasOpen = menuPopup.classList.contains('visible');
-      closeAll();
-      if (!wasOpen) menuPopup.classList.add('visible');
-    });
-
-    speedOpenBtn.addEventListener('click', function (e) {
-      e.stopPropagation();
-      menuPopup.classList.remove('visible');
-      speedPopup.classList.add('visible');
-    });
-
-    speedPopup.querySelectorAll('.speed-opt').forEach(function (btn) {
-      btn.addEventListener('click', function (e) {
-        e.stopPropagation();
-        var val = parseFloat(btn.dataset.speed);
-        speedSlider.value = val;
-        speedSlider.dispatchEvent(new Event('input', { bubbles: true }));
-        closeAll();
-      });
-    });
-
-    var vOpen = document.getElementById('m-voices-open-btn');
+setTimeout(function () {
+try { synth.cancel(); } catch (e) {}
+isChunkTransitionCancelled = false;
+}, 120);
+window.setState({ isSpeaking: false, isPaused: true });
+setPlayButtonState('paused');
+} else if (st.isPaused) {
+// ─── RESUME ───
+window.setState({ isPaused: false, isSpeaking: true });
+setPlayButtonState('playing');
+var text = getReadableText();
+var remaining = text.substring(st.lastIndex || 0);
+if (remaining.trim() !== '') speakText(remaining, true);
+} else {
+// ─── FRESH START ───
+speakText();
+}
+}
+function getReadableText() {
+var st = window.getState();
+if (st.viewMode === 'notes') {
+var noteArea = document.getElementById('note-area');
+return noteArea ? noteArea.value.replace(/\t/g, ' ').replace(/\n/g, ' ') : '';
+}
+var rows = st.rows || [];
+var parts = [];
+rows.forEach(function (r) {
+if (r.a) parts.push(r.a);
+if (r.b) parts.push(r.b);
+});
+return parts.join(' ').replace(/\t/g, ' ').replace(/\n/g, ' ');
+}
+// ─── Speak ───────────────────────────────────────────────────────────────
+function speakText(textOverride, isMidSentenceResume) {
+if (!isMidSentenceResume && !textOverride) {
+if (window.getState().isSpeaking) {
+isChunkTransitionCancelled = true;
+try { synth.cancel(); } catch (e) {}
+isChunkTransitionCancelled = false;
+}
+window.setState({ lastIndex: 0, isPaused: false });
+}
+var textToRead = textOverride || getReadableText();
+if (!textToRead.trim()) return;
+window.setState({ isSpeaking: true });
+setPlayButtonState('playing');
+var utteranceBaseIndex = isMidSentenceResume ? (window.getState().lastIndex || 0) : 0;
+speechChunks = splitIntoChunks(textToRead, CHUNK_CHAR_LIMIT);
+currentChunkIndex = 0;
+chunkBaseIndex = utteranceBaseIndex;
+startKeepAlive();
+playCurrentChunk();
+}
+function playCurrentChunk() {
+var chunkText = speechChunks[currentChunkIndex];
+var thisChunkBaseIndex = chunkBaseIndex;
+window.setState({ lastIndex: thisChunkBaseIndex });
+currentUtterance = new SpeechSynthesisUtterance(chunkText);
+var filtered = window.getState().filteredVoices || [];
+var selIdx = voiceSelect ? parseInt(voiceSelect.value, 10) : 0;
+if (filtered[selIdx]) currentUtterance.voice = filtered[selIdx];
+currentUtterance.rate = window.getState().speed || 0.75;
+currentUtterance.onboundary = function (e) {
+if (e.name === 'word') {
+window.setState({ lastIndex: thisChunkBaseIndex + e.charIndex });
+}
+};
+currentUtterance.onerror = function (e) {
+if (e.error === 'interrupted' || e.error === 'canceled') {
+isChunkTransitionCancelled = false;
+return;
+}
+console.warn('[speech] utterance error:', e.error);
+disarmWatchdog();
+currentChunkIndex++;
+chunkBaseIndex = thisChunkBaseIndex + chunkText.length;
+if (currentChunkIndex < speechChunks.length) playCurrentChunk();
+else finishReading();
+};
+currentUtterance.onend = function () {
+disarmWatchdog();
+if (isChunkTransitionCancelled) { isChunkTransitionCancelled = false; return; }
+currentChunkIndex++;
+chunkBaseIndex = thisChunkBaseIndex + chunkText.length;
+if (currentChunkIndex < speechChunks.length) {
+playCurrentChunk();
+} else {
+if (window.getState().isLooping) {
+window.setState({ lastIndex: 0 });
+speakText();
+} else {
+finishReading();
+}
+}
+};
+armWatchdog(chunkText);
+synth.speak(currentUtterance);
+}
+function finishReading() {
+disarmWatchdog();
+stopKeepAlive();
+window.setState({ lastIndex: 0, isPaused: false, isSpeaking: false });
+setPlayButtonState('idle');
+}
+// ─── Chunking ────────────────────────────────────────────────────────────
+function splitIntoChunks(text, maxLen) {
+var chunks = [];
+var start = 0;
+while (start < text.length) {
+if (text.length - start <= maxLen) {
+chunks.push(text.slice(start));
+break;
+}
+var searchEnd = start + maxLen;
+var splitAt = -1;
+for (var i = searchEnd; i > start; i--) {
+if (/[.!?]/.test(text[i - 1])) { splitAt = i; break; }
+}
+if (splitAt === -1) {
+for (var j = searchEnd; j > start; j--) {
+if (/\s/.test(text[j])) { splitAt = j + 1; break; }
+}
+}
+if (splitAt === -1 || splitAt <= start) splitAt = searchEnd;
+chunks.push(text.slice(start, splitAt));
+start = splitAt;
+}
+return chunks;
+}
+// ─── Watchdog + Keep-alive ───────────────────────────────────────────────
+function armWatchdog(chunkText) {
+clearTimeout(chunkWatchdog);
+var rate = window.getState().speed || 1;
+var estMs = Math.max(5000, (chunkText.length / 14) * (1000 / rate) + 4000);
+chunkWatchdog = setTimeout(function () {
+if (isChunkTransitionCancelled) return;
+console.warn('[speech] watchdog fired — forcing next chunk');
+try { synth.cancel(); } catch (e) {}
+setTimeout(function () {
+if (isChunkTransitionCancelled) return;
+currentChunkIndex++;
+chunkBaseIndex += chunkText.length;
+if (currentChunkIndex < speechChunks.length) playCurrentChunk();
+else finishReading();
+}, 60);
+}, estMs);
+}
+function disarmWatchdog() {
+clearTimeout(chunkWatchdog);
+chunkWatchdog = null;
+}
+function startKeepAlive() {
+stopKeepAlive();
+keepAliveTimer = setInterval(function () {
+var st = window.getState();
+if (st.isSpeaking && !st.isPaused) {
+try { synth.pause(); synth.resume(); } catch (e) {}
+}
+}, 10000);
+}
+function stopKeepAlive() {
+clearInterval(keepAliveTimer);
+keepAliveTimer = null;
+}
+// ─── Stop ────────────────────────────────────────────────────────────────
+function handleStop() {
+window.setState({ isLooping: false });
+setLoopVisual(false);
+isChunkTransitionCancelled = true;
+try { synth.cancel(); } catch (e) {}
+setTimeout(function () { try { synth.cancel(); } catch (e) {} }, 0);
+setTimeout(function () {
+try { synth.cancel(); } catch (e) {}
+isChunkTransitionCancelled = false;
+}, 200);
+disarmWatchdog();
+stopKeepAlive();
+window.setState({ isPaused: false, isSpeaking: false, lastIndex: 0 });
+currentUtterance = null;
+setPlayButtonState('idle');
+}
+// ─── Loop ────────────────────────────────────────────────────────────────
+function handleLoopClick() {
+var next = !window.getState().isLooping;
+window.setState({ isLooping: next });
+setLoopVisual(next);
+}
+// ─── Seek ────────────────────────────────────────────────────────────────
+function seekBy(wordDelta) {
+var st = window.getState();
+var wasActive = st.isSpeaking && !st.isPaused;
+var txt = getReadableText();
+var idx = st.lastIndex || 0;
+if (wordDelta > 0) {
+for (var i = 0; i < wordDelta; i++) {
+while (idx < txt.length && !/\s/.test(txt[idx])) idx++;
+while (idx < txt.length && /\s/.test(txt[idx])) idx++;
+}
+} else {
+for (var j = 0; j < -wordDelta; j++) {
+while (idx > 0 && /\s/.test(txt[idx - 1])) idx--;
+while (idx > 0 && !/\s/.test(txt[idx - 1])) idx--;
+}
+}
+idx = Math.max(0, Math.min(idx, txt.length));
+window.setState({ lastIndex: idx });
+if (wasActive) {
+isChunkTransitionCancelled = true;
+disarmWatchdog();
+stopKeepAlive();
+try { synth.cancel(); } catch (e) {}
+isChunkTransitionCancelled = false;
+var remaining = txt.substring(idx);
+if (remaining.trim() !== '') speakText(remaining, true);
+else finishReading();
+}
+}
+// ─── Speed ───────────────────────────────────────────────────────────────
+function onSpeedChange() {
+var v = parseFloat(speedSlider.value);
+speedValue.textContent = v + 'x';
+window.setState({ speed: v });
+var st = window.getState();
+if (st.isSpeaking && !st.isPaused) {
+isChunkTransitionCancelled = true;
+disarmWatchdog();
+stopKeepAlive();
+try { synth.cancel(); } catch (e) {}
+isChunkTransitionCancelled = false;
+var remaining = getReadableText().substring(st.lastIndex || 0);
+if (remaining.trim() !== '') speakText(remaining, true);
+}
+}
+// ─── Mobile popups ───────────────────────────────────────────────────────
+function initMobilePopups() {
+if (!menuBtn || !menuPopup || !speedOpenBtn || !speedPopup) return;
+function closeAll() {
+menuPopup.classList.remove('visible');
+speedPopup.classList.remove('visible');
+}
+menuBtn.addEventListener('click', function (e) {
+e.stopPropagation();
+var wasOpen = menuPopup.classList.contains('visible');
+closeAll();
+if (!wasOpen) menuPopup.classList.add('visible');
+});
+speedOpenBtn.addEventListener('click', function (e) {
+e.stopPropagation();
+menuPopup.classList.remove('visible');
+speedPopup.classList.add('visible');
+});
+speedPopup.querySelectorAll('.speed-opt').forEach(function (btn) {
+btn.addEventListener('click', function (e) {
+e.stopPropagation();
+var val = parseFloat(btn.dataset.speed);
+speedSlider.value = val;
+speedSlider.dispatchEvent(new Event('input', { bubbles: true }));
+closeAll();
+});
+});
+var vOpen = document.getElementById('m-voices-open-btn');
 var vModal = document.getElementById('voices-modal');
 var vSearch = document.getElementById('vm-search');
 var vSelect = document.getElementById('vm-select');
 var vClose = document.getElementById('vm-close');
-
 if (vOpen && vModal && vSearch && vSelect && vClose) {
-  function syncVoices() {
-    vSelect.innerHTML = voiceSelect.innerHTML;
-    vSelect.selectedIndex = voiceSelect.selectedIndex;
-  }
-
-  vOpen.addEventListener('click', function (e) {
-    e.stopPropagation();
-    closeAll();
-    syncVoices();
-    vModal.classList.add('visible');
-  });
-
-  vSearch.addEventListener('input', function () {
-    voiceSearch.value = vSearch.value;
-    voiceSearch.dispatchEvent(new Event('input'));
-    setTimeout(syncVoices, 250);
-  });
-
-  vSelect.addEventListener('change', function () {
-    voiceSelect.selectedIndex = vSelect.selectedIndex;
-    voiceSelect.dispatchEvent(new Event('change'));
-  });
-
-  vClose.addEventListener('click', function () {
-    vModal.classList.remove('visible');
-  });
+function syncVoices() {
+vSelect.innerHTML = voiceSelect.innerHTML;
+vSelect.selectedIndex = voiceSelect.selectedIndex;
 }
-
-    document.addEventListener('click', function (e) {
-      if (!menuPopup.contains(e.target) && e.target !== menuBtn &&
-          !speedPopup.contains(e.target)) {
-        closeAll();
-      }
-    });
-  }
-
-  // ─── Desktop popups (NEW) ────────────────────────────────────────────────
-  // Mirrors initMobilePopups() but wires the dt-* elements. Kept separate so
-  // the mobile code path is untouched.
-  function initDesktopPopups() {
-    if (!dtMenuBtn || !dtMenuPopup || !dtSpeedOpenBtn || !dtSpeedPopup) return;
-
-    function closeAll() {
-      dtMenuPopup.classList.remove('visible');
-      dtSpeedPopup.classList.remove('visible');
-    }
-
-    dtMenuBtn.addEventListener('click', function (e) {
-      e.stopPropagation();
-      var wasOpen = dtMenuPopup.classList.contains('visible');
-      closeAll();
-      if (!wasOpen) dtMenuPopup.classList.add('visible');
-    });
-
-    dtSpeedOpenBtn.addEventListener('click', function (e) {
-      e.stopPropagation();
-      dtMenuPopup.classList.remove('visible');
-      dtSpeedPopup.classList.add('visible');
-    });
-
-    dtSpeedPopup.querySelectorAll('.speed-opt').forEach(function (btn) {
-      btn.addEventListener('click', function (e) {
-        e.stopPropagation();
-        var val = parseFloat(btn.dataset.speed);
-        speedSlider.value = val;
-        speedSlider.dispatchEvent(new Event('input', { bubbles: true }));
-        closeAll();
-      });
-    });
-
-    document.addEventListener('click', function (e) {
-      if (!dtMenuPopup.contains(e.target) && e.target !== dtMenuBtn &&
-          !dtSpeedPopup.contains(e.target)) {
-        closeAll();
-      }
-    });
-  }
-
-  // Expose
-  window.initSpeech = initSpeech;
-  window.stopSpeech = function () { if (synth) handleStop(); };
+vOpen.addEventListener('click', function (e) {
+e.stopPropagation();
+closeAll();
+syncVoices();
+vModal.classList.add('visible');
+});
+vSearch.addEventListener('input', function () {
+voiceSearch.value = vSearch.value;
+voiceSearch.dispatchEvent(new Event('input'));
+setTimeout(syncVoices, 250);
+});
+vSelect.addEventListener('change', function () {
+voiceSelect.selectedIndex = vSelect.selectedIndex;
+voiceSelect.dispatchEvent(new Event('change'));
+});
+vClose.addEventListener('click', function () {
+vModal.classList.remove('visible');
+});
+}
+document.addEventListener('click', function (e) {
+if (!menuPopup.contains(e.target) && e.target !== menuBtn &&
+!speedPopup.contains(e.target)) {
+closeAll();
+}
+});
+}
+// ─── Desktop popups (NEW) ────────────────────────────────────────────────
+function initDesktopPopups() {
+if (!dtMenuBtn || !dtMenuPopup || !dtSpeedOpenBtn || !dtSpeedPopup) return;
+function closeAll() {
+dtMenuPopup.classList.remove('visible');
+dtSpeedPopup.classList.remove('visible');
+}
+dtMenuBtn.addEventListener('click', function (e) {
+e.stopPropagation();
+var wasOpen = dtMenuPopup.classList.contains('visible');
+closeAll();
+if (!wasOpen) dtMenuPopup.classList.add('visible');
+});
+dtSpeedOpenBtn.addEventListener('click', function (e) {
+e.stopPropagation();
+dtMenuPopup.classList.remove('visible');
+dtSpeedPopup.classList.add('visible');
+});
+dtSpeedPopup.querySelectorAll('.speed-opt').forEach(function (btn) {
+btn.addEventListener('click', function (e) {
+e.stopPropagation();
+var val = parseFloat(btn.dataset.speed);
+speedSlider.value = val;
+speedSlider.dispatchEvent(new Event('input', { bubbles: true }));
+closeAll();
+});
+});
+document.addEventListener('click', function (e) {
+if (!dtMenuPopup.contains(e.target) && e.target !== dtMenuBtn &&
+!dtSpeedPopup.contains(e.target)) {
+closeAll();
+}
+});
+}
+// Expose
+window.initSpeech = initSpeech;
+window.stopSpeech = function () { if (synth) handleStop(); };
 })();

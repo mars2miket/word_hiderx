@@ -347,45 +347,10 @@
   display: block;
 }
 
-/* ==========================================================================
-   TIMER
-   ========================================================================== */
-.timer-display {
-  font-family: ui-monospace, Menlo, monospace;
-  font-size: 22px;
-  font-weight: 700;
-  text-align: center;
-  padding: 2px;
-  background: linear-gradient(135deg, rgba(124, 92, 232, 0.08), rgba(11, 79, 92, 0.08));
-  color: var(--text-primary);
-  border-radius: 6px;
-  border: 1px solid var(--border-color);
-  flex: 1;
-}
-
-.timer-label {
-  font-size: 12px;
-  color: #94a3b8;
-  padding-left: 6px;
-}
-
-#timer-reset-btn {
-  border: 1px solid #ef4444;
-  color: #ef4444;
-}
-
-#timer-reset-btn:hover {
-  background: #ef4444;
-  color: white;
-}
 
 .metrics-row {
   border-top: 1px solid #334115;
   border-radius: 0;
-}
-
-#nested-timer-box {
-
 }
 
 
@@ -615,7 +580,7 @@
 }
 
 .start-test-btn {
-  padding: 6px 20px;
+  padding: 6px 18px;
   white-space: nowrap;
   flex-shrink: 0;
   border-radius: 8px;
@@ -961,7 +926,9 @@
   background: var(--control-bg);
   color: var(--text-primary);
   transition: background .15s, border-color .15s;
+  
 }
+
 
 .modal-btn:hover {
   background: var(--bg-surface-2);
@@ -972,6 +939,7 @@
   border: none;
   background: linear-gradient(135deg, var(--accent-light), var(--accent-mid) 60%, var(--accent-deep));
   color: #fff;
+  border: 1px solid transparent; 
 }
 
 .modal-btn.confirm:hover {
@@ -1141,7 +1109,7 @@
   padding: 8px 12px;
   white-space: nowrap;
   text-align: center;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
   border-radius: 0;
   background: transparent;
@@ -1157,7 +1125,7 @@
   left: 0;
   bottom: 0;
   width: 100%;
-  height: 3px;
+  height: 1px;
   background-color: #6366F1;
   transform: scaleX(0);
   transform-origin: left;
@@ -1248,11 +1216,9 @@
 
 
 #hint-show-btn {
-  width: 32px;
-  height: 32px;
   flex-shrink: 0;
   border-radius: 8px;
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--control-border);
   background: var(--bg-surface-2);
   color: var(--text-muted);
   font-size: 15px;
@@ -1359,7 +1325,7 @@ input:focus {
   height: 38px;
   padding: 0 8px;
   padding: 0;
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--control-border);
   border-radius: 8px;
   background: var(--bg-surface);
   color: var(--text-primary);
@@ -1567,10 +1533,12 @@ input:focus {
   display: block;
 }
 
-/* 3. Exam mode: hide the grid workspace entirely */
+/* 3. Hide the grid workspace entirely when in Exam mode */
 [data-view-mode="lists"] #grid-workspace.exam-hidden {
   display: none;
 }
+
+
 
 /* Hide exam viewer when not in Lists mode */
 [data-view-mode="notes"] #recall-viewer,
@@ -1929,7 +1897,7 @@ input:focus {
 }
 
 
-.mgmt-btn,
+
 .mobile-popup-item
 {
   border: 1px solid transparent !important;
@@ -1959,7 +1927,9 @@ button:not(
 .vs-item { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 6px; cursor: pointer; }
 .vs-item:hover, .vs-item.active { background: var(--accent-soft); }
 .vs-label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.vs-edit { border: none; background: transparent; color: var(--text-primary); font-size: 16px; cursor: pointer; padding: 4px 8px; }
+.vs-edit { border: 1px solid transparent !important; border-radius: 5px;
+  background: transparent; color: var(--text-primary); 
+  font-size: 16px; cursor: pointer; padding: 4px 8px; }
 
 /* Fix line level alignment between deck dropdown and management actions button */
 .view-switch-top,
@@ -1981,3 +1951,25 @@ button:not(
 .vs-btn {
   margin-bottom: 0 !important;
 }
+
+/* ==========================================================================
+   3-STATE SVG THEMING OVERRIDES
+   ========================================================================== */
+/* Hide all SVGs inside the toggle button by default */
+#theme-toggle svg {
+  display: none !important;
+}
+
+/* Conditionally expose the precise icon matching your data attribute */
+[data-theme="dark"] #theme-toggle .icon-moon {
+  display: block !important;
+}
+
+[data-theme="light"] #theme-toggle .icon-sun {
+  display: block !important;
+}
+
+[data-theme="cybersecurity"] #theme-toggle .icon-cyber {
+  display: block !important;
+}
+

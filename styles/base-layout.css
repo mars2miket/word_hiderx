@@ -7,6 +7,59 @@
 #recall-viewer.exam-active { display: block !important; }
 
 /* ==========================================================================
+   GLOBAL CYBERSECURITY COLOR SYSTEM
+   ========================================================================== */
+[data-theme="cybersecurity"],
+body[data-view-mode][data-theme="cybersecurity"] {
+  --bg-app: #050505 !important;
+  --bg-surface: #0a0f0d !important;
+  --bg-surface-2: #101714 !important;
+  --bg-elevated: #16221c !important;
+  --control-bg: #0d1310 !important;
+  --control-border: #00ff66 !important;
+  --border-strong: #00b344 !important;
+  --border-color: #006622 !important;
+  --text-primary: #00ff66 !important;
+  --text-muted: #00aa44 !important;
+  --accent-light: #33ff88 !important;
+  --accent-mid: #00ff66 !important;
+  --accent-deep: #003311 !important;
+  --accent-soft: rgba(0, 255, 102, 0.12) !important;
+  --accent-glow: rgba(0, 255, 102, 0.4) !important;
+}
+
+/* Ensure the sticky header background shifts cleanly in cybersecurity mode */
+[data-theme="cybersecurity"] .header-cell {
+  background-color: #101714 !important;
+  color: #00ff66 !important;
+  border-color: #00ff66 !important;
+}
+
+/* Override fixed hardcoded colors found in playback and slider layouts */
+[data-theme="cybersecurity"] .playback-row,
+[data-theme="cybersecurity"] .slider-container,
+[data-theme="cybersecurity"] .answer-btn {
+  border-color: #006622 !important;
+  background-color: #0a0f0d !important;
+}
+
+/* Make sure text carets match the terminal theme profile */
+[data-theme="cybersecurity"] .data-cell {
+  caret-color: #00ff66 !important;
+}
+
+[data-theme="cybersecurity"] .brand-name {
+  color: #22c55e; /* Or your preferred shade of cyber green */
+}
+
+[data-theme="cybersecurity"] .start-test-btn {
+  background: linear-gradient(135deg, #15803d, #166534 60%, #14532d); /* Matrix/Cyber greens */
+  box-shadow: 0 0 10px rgba(34, 197, 94, 0.3);
+}
+
+
+
+/* ==========================================================================
    DESIGN TOKENS
    ========================================================================== */
 :root {
@@ -178,8 +231,8 @@ svg { display: block; }
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 20px;
-  font-weight: 700;
+  font-size: 16px;
+  font-weight: 500;
   color: var(--text-primary);
   flex: 1;
 }
