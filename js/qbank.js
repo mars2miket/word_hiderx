@@ -1,12 +1,10 @@
 /**
  * qbank.js — classic script.
- * Question Bank picker: loads Q_Bank.csv, lets the user pick a category + count,
- * imports random UNUSED questions as a new list. Modal open/close persists.
  */
 (function () {
   'use strict';
 
-  var CSV_URL = 'Q_Bank.csv';
+  var CSV_URLS = ['Q_Bank.csv', 'ai.csv']; // Ensure these filenames match your folder exactly
   var DEFAULT_COUNT = 20;
   var USED_KEY = 'qbankUsed';
   var SEQ_KEY = 'qbankSeq';
@@ -231,16 +229,35 @@
     updateControls();
     overlay.classList.add('visible');
 
-    fetch(CSV_URL, { cache: 'no-cache' })
-      .then(function (r) { if (!r.ok) throw new Error(r.status); return r.text(); })
-      .then(function (text) { data = buildData(text); })
-      .catch(function (err) { console.warn('[qbank] load failed:', err); })
-      .then(function () {
-        if (!data) { statusEl.textContent = t('qbankLoadErr', 'Could not load the question bank.'); return; }
-        renderList();
-        updateControls();
-        if (window.matchMedia('(hover: hover)').matches) searchEl.focus();
+    // ─── UPDATED TO LOAD MULTIPLE FILES ───
+    Promise.all(
+      CSV_URLS.map(function(url) {
+        return fetch(url, { cache: 'no-cache' })
+          .then(function(r) { return r.ok ? r.text() : ''; })
+          .catch(function() { return ''; });
+      })
+    )
+    .then(function(texts) {
+      var merged = {};
+      texts.forEach(function(text) {
+        if (!text) return;
+        var parsed = buildData(text);
+        Object.keys(parsed).forEach(function(cat) {
+          if (!merged[cat]) merged[cat] = [];
+          merged[cat] = merged[cat].concat(parsed[cat]);
+        });
       });
+      data = merged;
+    })
+    .then(function () {
+      if (!data || !Object.keys(data).length) { 
+        statusEl.textContent = t('qbankLoadErr', 'Could not load the question bank.'); 
+        return; 
+      }
+      renderList();
+      updateControls();
+      if (window.matchMedia('(hover: hover)').matches) searchEl.focus();
+    });
   }
 
   function close() {
@@ -315,7 +332,6 @@
     var btn = document.getElementById('qbank-open-btn');
     if (btn) btn.addEventListener('click', open);
 
-    // Restore modal state across reloads
     if (window.storage.get(OPEN_KEY, false)) open();
   }
 
