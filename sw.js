@@ -9,7 +9,7 @@ var FILES = [
   'js/modal.js', 'js/lists.js', 'js/notes.js', 'js/speech.js',
   'js/exam.js', 'js/analytics.js', 'js/workspace-toggle.js', 'js/main.js',
   'js/qbank.js', 
-  'Q_Bank.csv', 'Q_Bank_AI.csv',
+  'Q_Bank.csv', 'ai.csv',
   'icons/icon-192.png', 'icons/icon-512.png'
 ];
 
